@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3487f1e122301493aa0380740c0225e4, type: 3}
   m_Name: NewWave 1
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 4006216442525268814, guid: 8b14fb24d223b403aba3e45f0e674539,
+  enemyPrefab: {fileID: 6277799879001790009, guid: 8b14fb24d223b403aba3e45f0e674539,
     type: 3}
   enemyData: {fileID: 11400000, guid: 849cd2e131b804f4c9c33dfe2e1e1006, type: 2}
   enemyCount: 5

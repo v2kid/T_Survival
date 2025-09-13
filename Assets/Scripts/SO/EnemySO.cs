@@ -10,7 +10,6 @@ public class EnemySO : ScriptableObject
     public float meleeDamage;
     public float attackRange;
     public float attackSpeed;
-    public int experiencePoints;
 
 }
 
@@ -18,6 +17,5 @@ public class EnemySO : ScriptableObject
 public enum EnemyID
 {
     Zombie = 0,
-    Skeleton = 1,
-    Goblin = 2
+    Dummy = 99
 }

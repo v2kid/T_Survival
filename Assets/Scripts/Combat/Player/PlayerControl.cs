@@ -18,6 +18,7 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private Transform attackPos;
     [Tooltip("Offset Stoping Distance")][SerializeField] private float quickAttackDeltaDistance;
     [Tooltip("Offset Stoping Distance")][SerializeField] private float heavyAttackDeltaDistance;
+    [SerializeField] private bool useKnockback = true;
     [SerializeField] private float knockbackForce = 10f;
     [SerializeField] private float airknockbackForce = 10f;
     [SerializeField] private float attackRange = 1f;
@@ -239,8 +240,15 @@ public class PlayerControl : MonoBehaviour
             if (enemyRb != null)
             {
                 Vector3 knockbackDirection = enemy.transform.position - transform.position;
-                knockbackDirection.y = airknockbackForce; // Keep the knockback horizontal
-                enemyRb.AddForce(knockbackDirection.normalized * knockbackForce, ForceMode.Impulse);
+                if (useKnockback)
+                {
+                    knockbackDirection.y = airknockbackForce; // Keep the knockback horizontal
+                    enemyRb.AddForce(knockbackDirection.normalized * knockbackForce, ForceMode.Impulse);
+                }
+                else
+                {
+
+                }
                 enemyBase.TakeDamage(playerStats.DealDamage(), enemyBase.transform.position);
                 var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Hit_1);
                 vfx.transform.position = attackPos.position;

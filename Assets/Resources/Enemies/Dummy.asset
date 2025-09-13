@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad210fc9ea99f41c6b54cadaa83a0e7f, type: 3}
-  m_Name: EnemySO
+  m_Name: Dummy
   m_EditorClassIdentifier: 
-  enemyID: 0
-  enemyName: zom
-  maxHealth: 100
-  moveSpeed: 1.5
-  meleeDamage: 6
-  attackRange: 1
-  attackSpeed: 1.3
+  enemyID: 99
+  enemyName: Dummy
+  maxHealth: 1000000
+  moveSpeed: 0
+  meleeDamage: 0
+  attackRange: 0
+  attackSpeed: 0
+  experiencePoints: 0

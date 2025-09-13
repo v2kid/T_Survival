@@ -1888,7 +1888,7 @@ GameObject:
   - component: {fileID: 5752794288454379434}
   - component: {fileID: 479865092205313305}
   - component: {fileID: 3573125914587868354}
-  - component: {fileID: 4006216442525268814}
+  - component: {fileID: 6277799879001790009}
   m_Layer: 7
   m_Name: Zombie
   m_TagString: Untagged
@@ -1998,12 +1998,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 820138210562918118}
-  enemyBase: {fileID: 4006216442525268814}
+  enemyBase: {fileID: 0}
   currentState: 0
   attackCooldown: 1
   attackDuration: 1
   canAttack: 1
---- !u!114 &4006216442525268814
+--- !u!114 &6277799879001790009
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2012,12 +2012,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 8153249681440862843}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 64d72eb6c383b4795b57d9f44d81c645, type: 3}
+  m_Script: {fileID: 11500000, guid: bebf8dbc8bb4946f390bf3b3b01dd147, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 0}
-  playerStats: {fileID: 0}
-  activeTargetObject: {fileID: 0}
   _renderer: {fileID: 1881096517072812430}
 --- !u!1 &8223639086256869184
 GameObject:

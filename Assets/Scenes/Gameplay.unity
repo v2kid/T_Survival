@@ -13736,6 +13736,7 @@ MonoBehaviour:
   attackPos: {fileID: 1447105464}
   quickAttackDeltaDistance: 1.8
   heavyAttackDeltaDistance: 1.8
+  useKnockback: 1
   knockbackForce: 15
   airknockbackForce: 0.2
   attackRange: 1

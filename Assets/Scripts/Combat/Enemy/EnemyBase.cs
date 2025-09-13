@@ -1,64 +1,98 @@
 using System.Collections;
-using Maskborn;
 using UnityEngine;
+using Maskborn;
+using System.Collections.Generic;
 
-public class EnemyBase : MonoBehaviour, IHealthBar
+public abstract class EnemyBase : MonoBehaviour, IHealthBar
 {
     public EnemySO enemyData;
-    private EnemyStat enemyStat;
-    public PlayerStats playerStats; //track player
+    protected EnemyStat enemyStat;
+    public PlayerStats playerStats; // track player
     private UIHealthBar _healthBar;
-    private EnemyStateMachine stateMachine;
     [SerializeField] private Renderer _renderer;
-    public static event System.Action<int> OnDie; //experience points
+    public static event System.Action<int> OnDie; // experience points
 
-    public bool IsDead => enemyStat.currentHealth <= 0;
-    public void Initialize(EnemySO data, PlayerStats playerStats_)
+
+    [Header("State Machine")]
+    private Dictionary<EnemyStateID, EnemyState> states = new Dictionary<EnemyStateID, EnemyState>();
+    protected EnemyState currentState;
+    public Animator animator;
+
+    public bool IsDead => enemyStat?.currentHealth <= 0;
+
+    public virtual void Initialize(EnemySO data, PlayerStats playerStats_)
     {
         enemyData = data;
         playerStats = playerStats_;
         enemyStat = new EnemyStat(enemyData);
-        stateMachine = GetComponent<EnemyStateMachine>();
-        if (stateMachine != null)
-        {
-            stateMachine.enemyBase = this;
-            stateMachine.Initialize(playerStats);
-        }
-    }
 
-    void Start()
+    }
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
+    private void Start()
     {
         if (enemyStat == null && enemyData != null)
         {
             enemyStat = new EnemyStat(enemyData);
         }
-
-        RegisterHealthBar(transform, enemyStat.maxHealth);
-        //instance new material to avoid changing original
-        _renderer.material = new Material(_renderer.material);
+        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(transform, enemyStat.maxHealth);
+        if (_renderer != null)
+            _renderer.material = new Material(_renderer.material);
     }
-
-
- 
-
-
-
-    public void OnDeath()
+    public void AddState(EnemyState state)
     {
-        if (_healthBar != null)
-            UnregisterHealthBar(_healthBar);
-        OnDie?.Invoke(enemyData.experiencePoints);
-        ObjectSpawner.Instance.SpawnCoin(transform.position + Vector3.up);
-        StartCoroutine(DestroyAfterDelay(5f));
+        states[state.GetID()] = state;
     }
-    public void TakeDamage(DamageResult result, Vector3 hitPoint)
+
+    public void ChangeState(EnemyStateID newStateID)
     {
-        stateMachine.TakeDamage(result.FinalDamage);
-        // VFXPoolManager.Instance.GetEffect(VisualEffectID.Hit_1).transform.position = hitPoint;
-        UIDamageTextManager.Instance.ShowDamageText(transform.position, result.FinalDamage, result.IsCrit ? TextType.Critical : (result.IsMiss ? TextType.Miss : TextType.Normal));
+        if (currentState != null)
+            currentState.Exit(this);
+
+        if (states.TryGetValue(newStateID, out EnemyState newState))
+        {
+            currentState = newState;
+            currentState.Enter(this);
+        }
+        else
+        {
+            Debug.LogWarning($"State {newStateID} not found in the state machine.");
+        }
 
     }
-    public void PlayDissolve()
+
+    private void Update()
+    {
+        if (currentState != null)
+            currentState.Update(this);
+    }
+
+    public abstract void OnDeath();
+
+    public virtual void TakeDamage(DamageResult result, Vector3 hitPoint)
+    {
+        enemyStat.currentHealth -= result.FinalDamage;
+        UIDamageTextManager.Instance.ShowDamageText(
+            transform.position,
+            result.FinalDamage,
+            result.IsCrit ? TextType.Critical :
+            (result.IsMiss ? TextType.Miss : TextType.Normal)
+        );
+        SetHealth(enemyStat.currentHealth, enemyStat.maxHealth);
+    }
+
+    public virtual void Attack() //use in animation event
+    {
+        playerStats.TakeDamage(enemyStat.attackDamage);
+    }
+    public void PlayeAttackAnimation()
+    {
+        animator.SetTrigger("Attack");
+    }
+
+    protected void PlayDissolve()
     {
         StartCoroutine(DissolveEffect());
     }
@@ -71,21 +105,19 @@ public class EnemyBase : MonoBehaviour, IHealthBar
         {
             elapsed += Time.deltaTime;
             float dissolveAmount = Mathf.Clamp01(elapsed / dissolveDuration);
-            _renderer.material.SetFloat("_DissolveAmount", dissolveAmount);
+            if (_renderer != null)
+                _renderer.material.SetFloat("_DissolveAmount", dissolveAmount);
             yield return null;
         }
     }
 
-    private IEnumerator DestroyAfterDelay(float delay)
+    protected IEnumerator DestroyAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         Destroy(gameObject);
     }
 
-    public EnemyStat GetEnemyStat()
-    {
-        return enemyStat;
-    }
+    public EnemyStat GetEnemyStat() => enemyStat;
 
     private void OnDrawGizmosSelected()
     {
@@ -96,10 +128,7 @@ public class EnemyBase : MonoBehaviour, IHealthBar
         }
     }
 
-    public void RegisterHealthBar(Transform target, float maxHealth)
-    {
-        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(target, maxHealth);
-    }
+
 
     public void SetHealth(float health, float maxHealth)
     {
@@ -107,13 +136,26 @@ public class EnemyBase : MonoBehaviour, IHealthBar
             _healthBar.SetHealth(health, maxHealth);
     }
 
-    public void UnregisterHealthBar(UIHealthBar healthBar)
+    public bool IsInAttackRange()
+    {
+        float distance = Vector3.Distance(playerStats.transform.position, transform.position);
+        return distance <= enemyStat.attackRange;
+    }
+
+
+
+    void IHealthBar.RegisterHealthBar(Transform target, float maxHealth)
+    {
+        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(target, maxHealth);
+    }
+
+    void IHealthBar.UnregisterHealthBar(UIHealthBar healthBar)
     {
         UIHealthBarController.Instance.UnregisterHealthBar(healthBar);
     }
 }
 
-// ...existing code...
+// --- Stats data class ---
 public class EnemyStat
 {
     public float maxHealth;
@@ -133,3 +175,12 @@ public class EnemyStat
         attackRate = enemyData.attackSpeed;
     }
 }
+public enum EnemyStateID
+{
+    Idle,
+    Move,
+    Attack,
+    Hitted,
+    Die
+}
+
