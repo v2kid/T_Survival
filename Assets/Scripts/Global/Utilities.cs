@@ -4,6 +4,8 @@ using System;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+namespace Global
+{
 
     public static class Utilities
     {
@@ -250,3 +252,4 @@ using UnityEngine.UI;
             StartCoroutine(coroutine);
         }
     }
+}

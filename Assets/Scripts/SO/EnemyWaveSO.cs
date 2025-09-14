@@ -1,14 +1,17 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-[CreateAssetMenu(menuName = "Game/WaveConfig", fileName = "NewWave")]
+[CreateAssetMenu(menuName = "Wave/EnemyWave")]
 public class EnemyWaveSO : ScriptableObject
 {
-    [Header("Enemy Settings")]
-    public EnemyBase enemyPrefab;
-    public EnemySO enemyData;
+    public List<EnemyEntry> enemies;
+}
 
-    [Header("Wave Settings")]
-    public int enemyCount = 10;           // số lượng quái trong wave
-    public float spawnRate = 1f;          // thời gian giữa mỗi quái
-    public float startDelay = 0f;         // delay trước khi wave này bắt đầu
+[System.Serializable]
+public class EnemyEntry
+{
+    public EnemySO enemyData;
+    public int enemyCount = 5;
+    public float spawnRate = 1f;      // delay giữa từng con cùng loại
+    public float startDelay = 0f;     // delay trước khi spawn loại này
 }

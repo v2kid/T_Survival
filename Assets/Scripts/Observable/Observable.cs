@@ -58,6 +58,8 @@ public class Observable<T>
             observer.OnValueChanged(_value, _value);
         }
     }
+
+  
 }
 
 
@@ -100,14 +102,7 @@ public class ObservableValue<T>
         OnValueChanged?.Invoke(_value, _value);
         OnValueSet?.Invoke(_value);
     }
-    // public void Subscribe(Action<T, T> callback, bool notifyImmediately = false)
-    // {
-    //     OnValueChanged += callback;
-    //     if (notifyImmediately)
-    //     {
-    //         callback(_value, _value);
-    //     }
-    // }
+    
     public void Subscribe(Action<T, T> callback, bool notifyImmediately = false)
     {
         OnValueChanged += callback;

@@ -11,8 +11,7 @@ public class Dummy : EnemyBase
     }
     public override void TakeDamage(DamageResult result, Vector3 hitPoint)
     {
-        Debug.Log("Dummy took damage: " + result.FinalDamage);
-        base.TakeDamage(result, hitPoint);
+            base.TakeDamage(result, hitPoint);
         animator.SetTrigger("Hit");
     }
 }   

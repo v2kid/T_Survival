@@ -1,35 +1,58 @@
-using Maskborn;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour, IHealthBar
 {
     public static PlayerStats Instance { get; private set; }
 
-    [Header("Level & EXP")]
+    [Header("Currency")]
+    [SerializeField] private int coin = 0;
+    public ObservableValue<int> CoinObservable { get; private set; }
+
+    [SerializeField, Range(0f, 1f)] private float coinDropChance = 0.1f;
+    public ObservableValue<float> CoinDropChance { get; private set; }
 
     [Header("Health")]
-    public float maxHealth = 100f;
-    public float currentHealth = 100f;
+    [SerializeField] private float maxHealth = 100f;
+    public ObservableValue<float> MaxHealth { get; private set; }
+
+    public ObservableValue<float> CurrentHealth { get; private set; }
 
     [Header("Movement")]
-    public float moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 5f;
+    public ObservableValue<float> MoveSpeed { get; private set; }
 
     [Header("Combat")]
-    public float meleeDamage = 10f;
-    public float attackSpeed = 1f; // đòn/s
-    public float attackRange = 1.5f;
+    [SerializeField] private float meleeDamage = 10f;
+    public ObservableValue<float> MeleeDamage { get; private set; }
 
-    [Range(0f, 1f)] public float critChance = 0f;   // 0–1  
-    public float critMultiplier = 2f;
+    [SerializeField] private float attackSpeed = 1f;   // fixed, not observable
+    public float AttackSpeed => attackSpeed;
+
+    [SerializeField] private float attackRange = 1.5f; // fixed, not observable
+    public float AttackRange => attackRange;
+
+    [SerializeField, Range(0f, 1f)] private float critChance = 0f;
+    public ObservableValue<float> CritChance { get; private set; }
+
+    [SerializeField] private float critMultiplier = 2f;
+    public ObservableValue<float> CritMultiplier { get; private set; }
 
     [Header("Defense")]
-    public float armor = 0f;                        // giảm sát thương phẳng
-    [Range(0f, 1f)] public float dodgeChance = 0f;  // 0–1
+    [SerializeField] private float armor = 0f; // flat damage reduction
+    public ObservableValue<float> Armor { get; private set; }
+
+    [SerializeField, Range(0f, 1f)] private float dodgeChance = 0f;
+    public ObservableValue<float> DodgeChance { get; private set; }
 
     [Header("Other")]
-    public float lifeSteal = 0f;               // lượng máu hồi theo % sát thương
-    [Range(0f, 1f)] public float lifeStealRate = 0f; // 0–1
-    public float hpRegen = 1f;
+    [SerializeField] private float lifeSteal = 0f; // % heal by dmg dealt
+    public ObservableValue<float> LifeSteal { get; private set; }
+
+    [SerializeField, Range(0f, 1f)] private float lifeStealRate = 0f;
+    public ObservableValue<float> LifeStealRate { get; private set; }
+
+    [SerializeField] private float hpRegen = 1f;
+    public ObservableValue<float> HpRegen { get; private set; }
 
     private UIHealthBar _healthBar;
     private float timer;
@@ -38,13 +61,37 @@ public class PlayerStats : MonoBehaviour, IHealthBar
     private void Awake()
     {
         if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        // Khởi tạo observable từ Inspector
+        CoinObservable = new ObservableValue<int>(coin);
+        CoinDropChance = new ObservableValue<float>(coinDropChance);
+
+        MaxHealth = new ObservableValue<float>(maxHealth);
+        CurrentHealth = new ObservableValue<float>(maxHealth);
+
+        MoveSpeed = new ObservableValue<float>(moveSpeed);
+
+        MeleeDamage = new ObservableValue<float>(meleeDamage);
+        CritChance = new ObservableValue<float>(critChance);
+        CritMultiplier = new ObservableValue<float>(critMultiplier);
+
+        Armor = new ObservableValue<float>(armor);
+        DodgeChance = new ObservableValue<float>(dodgeChance);
+
+        LifeSteal = new ObservableValue<float>(lifeSteal);
+        LifeStealRate = new ObservableValue<float>(lifeStealRate);
+        HpRegen = new ObservableValue<float>(hpRegen);
     }
 
     private void Start()
     {
-        currentHealth = maxHealth;
-        RegisterHealthBar(transform, maxHealth);
+        RegisterHealthBar(transform, MaxHealth.Value);
+        CoinObservable.Value = 0;
     }
 
     private void Update()
@@ -53,17 +100,9 @@ public class PlayerStats : MonoBehaviour, IHealthBar
         if (timer >= regenInterval)
         {
             timer = 0f;
-            HandleRegen(hpRegen);
+            HandleRegen(HpRegen.Value);
         }
     }
-
-    private void OnDestroy()
-    {
-    }
-
-
-
- 
 
     public void RegisterHealthBar(Transform target, float maxHealth)
     {
@@ -75,20 +114,20 @@ public class PlayerStats : MonoBehaviour, IHealthBar
         _healthBar.SetHealth(health, maxHealth);
     }
 
-    public void UnregisterHealthBar(UIHealthBar healthBar)
+    public void AddCoin(int amount)
     {
-        throw new System.NotImplementedException();
+        CoinObservable.Value += amount;
     }
 
     public void TakeDamage(float amount)
     {
         DamageResult result = DamageHelper.CalculateDamage(
             amount,
-            critChance,
-            critMultiplier,
-            armor,
-            dodgeChance,
-            lifeStealRate
+            CritChance.Value,
+            CritMultiplier.Value,
+            Armor.Value,
+            DodgeChance.Value,
+            LifeStealRate.Value
         );
 
         if (result.IsMiss)
@@ -98,9 +137,10 @@ public class PlayerStats : MonoBehaviour, IHealthBar
             return;
         }
 
-        currentHealth -= result.FinalDamage;
-        currentHealth = Mathf.Max(currentHealth, 0);
-        SetHealth(currentHealth, maxHealth);
+        CurrentHealth.Value -= result.FinalDamage;
+        CurrentHealth.Value = Mathf.Max(CurrentHealth.Value, 0);
+        SetHealth(CurrentHealth.Value, MaxHealth.Value);
+
         UIDamageTextManager.Instance.ShowDamageText(
             transform.position,
             result.FinalDamage,
@@ -111,16 +151,17 @@ public class PlayerStats : MonoBehaviour, IHealthBar
     public DamageResult DealDamage()
     {
         DamageResult result = DamageHelper.CalculateDamage(
-            meleeDamage,
-            critChance,
-            critMultiplier,
+            MeleeDamage.Value,
+            CritChance.Value,
+            CritMultiplier.Value,
             0, // target armor
             0, // target dodge
-            lifeStealRate
+            LifeStealRate.Value
         );
+
         if (result.IsLifeSteal)
         {
-            float healAmount = result.FinalDamage * lifeSteal;
+            float healAmount = result.FinalDamage * LifeSteal.Value;
             Heal(healAmount);
         }
         return result;
@@ -128,18 +169,25 @@ public class PlayerStats : MonoBehaviour, IHealthBar
 
     public void Heal(float amount)
     {
-        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-        SetHealth(currentHealth, maxHealth);
+        CurrentHealth.Value = Mathf.Min(CurrentHealth.Value + amount, MaxHealth.Value);
+        SetHealth(CurrentHealth.Value, MaxHealth.Value);
+
         UIDamageTextManager.Instance.ShowDamageText(transform.position, amount, TextType.Heal);
+
         var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Heal);
         vfx.transform.SetParent(transform);
         vfx.transform.localPosition = Vector3.zero;
         vfx.Play();
     }
 
-    private void HandleRegen(float amount) //no show text
+    private void HandleRegen(float amount) // no show text
     {
-        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-        SetHealth(currentHealth, maxHealth);
+        CurrentHealth.Value = Mathf.Min(CurrentHealth.Value + amount, MaxHealth.Value);
+        SetHealth(CurrentHealth.Value, MaxHealth.Value);
+    }
+
+    public void UnregisterHealthBar()
+    {
+        UIHealthBarController.Instance.UnregisterHealthBar(_healthBar);
     }
 }

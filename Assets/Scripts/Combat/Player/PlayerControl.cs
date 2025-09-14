@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using StarterAssets;
-using Maskborn;
 public class PlayerControl : MonoBehaviour
 {
     [Space]
@@ -111,7 +110,6 @@ public class PlayerControl : MonoBehaviour
         int attackIndex = Random.Range(1, 4);
         if (debug)
         {
-            Debug.Log(attackIndex + " attack index");
         }
 
         switch (attackIndex)
@@ -172,7 +170,6 @@ public class PlayerControl : MonoBehaviour
         //int attackIndex = 2;
         if (debug)
         {
-            Debug.Log(attackIndex + " attack index");
         }
 
         switch (attackIndex)

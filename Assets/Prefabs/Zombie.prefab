@@ -1843,6 +1843,37 @@ Transform:
   - {fileID: 912843664970726644}
   m_Father: {fileID: 5809941081139211905}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8095753094768297110
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 137266117889478145}
+  m_Layer: 7
+  m_Name: Attack_Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &137266117889478145
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8095753094768297110}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.079, z: 0.508}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5744037188602753632}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8134975474974099687
 GameObject:
   m_ObjectHideFlags: 0
@@ -1887,7 +1918,6 @@ GameObject:
   - component: {fileID: 820138210562918118}
   - component: {fileID: 5752794288454379434}
   - component: {fileID: 479865092205313305}
-  - component: {fileID: 3573125914587868354}
   - component: {fileID: 6277799879001790009}
   m_Layer: 7
   m_Name: Zombie
@@ -1911,6 +1941,7 @@ Transform:
   m_Children:
   - {fileID: 8190382784443888566}
   - {fileID: 5256763826916119360}
+  - {fileID: 137266117889478145}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &820138210562918118
@@ -1985,24 +2016,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &3573125914587868354
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8153249681440862843}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17e5a3baa047a400b9ed0f91b9688a07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 820138210562918118}
-  enemyBase: {fileID: 0}
-  currentState: 0
-  attackCooldown: 1
-  attackDuration: 1
-  canAttack: 1
 --- !u!114 &6277799879001790009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2015,8 +2028,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bebf8dbc8bb4946f390bf3b3b01dd147, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 0}
+  enemyData: {fileID: 11400000, guid: 849cd2e131b804f4c9c33dfe2e1e1006, type: 2}
+  playerStats: {fileID: 0}
   _renderer: {fileID: 1881096517072812430}
+  _attackPos: {fileID: 137266117889478145}
+  animator: {fileID: 0}
 --- !u!1 &8223639086256869184
 GameObject:
   m_ObjectHideFlags: 0

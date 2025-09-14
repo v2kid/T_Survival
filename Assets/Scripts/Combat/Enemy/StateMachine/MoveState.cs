@@ -7,7 +7,6 @@ public class MoveState : EnemyState
     public override void Enter(EnemyBase enemy)
     {
         SetAnimationSpeed(1.0f, enemy.animator);
-        Debug.Log("Enter MoveState");
     }
 
     public override void Update(EnemyBase enemy)

@@ -2,8 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Pool;
 
-namespace Maskborn
-{
+
     public class VFXPoolManager : MonoBehaviour
     {
         public static VFXPoolManager Instance { get; private set; }
@@ -61,4 +60,3 @@ namespace Maskborn
             return null;
         }
     }
-}

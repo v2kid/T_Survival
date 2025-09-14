@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using Maskborn;
 using System.Collections.Generic;
 
 public abstract class EnemyBase : MonoBehaviour, IHealthBar
@@ -9,12 +8,13 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar
     protected EnemyStat enemyStat;
     public PlayerStats playerStats; // track player
     private UIHealthBar _healthBar;
-    [SerializeField] private Renderer _renderer;
-    public static event System.Action<int> OnDie; // experience points
+    [SerializeField] protected Renderer _renderer;
+    public event System.Action OnDie; // experience points
 
 
     [Header("State Machine")]
     private Dictionary<EnemyStateID, EnemyState> states = new Dictionary<EnemyStateID, EnemyState>();
+    private List<GlobalTransition> globalTransitions = new List<GlobalTransition>();
     protected EnemyState currentState;
     public Animator animator;
 
@@ -25,6 +25,7 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar
         enemyData = data;
         playerStats = playerStats_;
         enemyStat = new EnemyStat(enemyData);
+        AddGlobalTransition(() => IsDead, EnemyStateID.Die);
 
     }
     private void Awake()
@@ -45,9 +46,15 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar
     {
         states[state.GetID()] = state;
     }
-
+    public void AddGlobalTransition(System.Func<bool> condition, EnemyStateID targetState)
+    {
+        globalTransitions.Add(new GlobalTransition(condition, targetState));
+    }
     public void ChangeState(EnemyStateID newStateID)
     {
+        if (currentState != null && currentState.GetID() == newStateID)
+            return;
+
         if (currentState != null)
             currentState.Exit(this);
 
@@ -60,11 +67,18 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar
         {
             Debug.LogWarning($"State {newStateID} not found in the state machine.");
         }
-
     }
 
     private void Update()
     {
+        foreach (var transition in globalTransitions)
+        {
+            if (transition.Condition())
+            {
+                ChangeState(transition.TargetState);
+                return;
+            }
+        }
         if (currentState != null)
             currentState.Update(this);
     }
@@ -86,47 +100,30 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar
     public virtual void Attack() //use in animation event
     {
         playerStats.TakeDamage(enemyStat.attackDamage);
+        var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Blood);
+        vfx.transform.position = playerStats.transform.position + Vector3.up * 1.0f;
+        vfx.Play();
+
     }
     public void PlayeAttackAnimation()
     {
         animator.SetTrigger("Attack");
     }
 
-    protected void PlayDissolve()
+    public virtual void PlayDieEffect()
     {
-        StartCoroutine(DissolveEffect());
+        OnDie?.Invoke();
+        StartCoroutine(DestroyDelay(2.0f));
     }
-
-    private IEnumerator DissolveEffect()
-    {
-        float dissolveDuration = 2f;
-        float elapsed = 0f;
-        while (elapsed < dissolveDuration)
-        {
-            elapsed += Time.deltaTime;
-            float dissolveAmount = Mathf.Clamp01(elapsed / dissolveDuration);
-            if (_renderer != null)
-                _renderer.material.SetFloat("_DissolveAmount", dissolveAmount);
-            yield return null;
-        }
-    }
-
-    protected IEnumerator DestroyAfterDelay(float delay)
+    public IEnumerator DestroyDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         Destroy(gameObject);
     }
 
+
     public EnemyStat GetEnemyStat() => enemyStat;
 
-    private void OnDrawGizmosSelected()
-    {
-        if (enemyData != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, enemyData.attackRange);
-        }
-    }
 
 
 
@@ -142,17 +139,17 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar
         return distance <= enemyStat.attackRange;
     }
 
-
-
-    void IHealthBar.RegisterHealthBar(Transform target, float maxHealth)
+    public void RegisterHealthBar(Transform target, float maxHealth)
     {
         _healthBar = UIHealthBarController.Instance.RegisterHealthBar(target, maxHealth);
     }
 
-    void IHealthBar.UnregisterHealthBar(UIHealthBar healthBar)
+    public void UnregisterHealthBar()
     {
-        UIHealthBarController.Instance.UnregisterHealthBar(healthBar);
+        UIHealthBarController.Instance.UnregisterHealthBar(_healthBar);
     }
+
+
 }
 
 // --- Stats data class ---

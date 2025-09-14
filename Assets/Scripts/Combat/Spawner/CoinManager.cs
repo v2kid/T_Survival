@@ -38,11 +38,11 @@ public class CoinManager : MonoBehaviour
         if (player == null) return;
 
         float currentTime = Time.time;
-        
+
         for (int i = activeCoins.Count - 1; i >= 0; i--)
         {
             var coinData = activeCoins[i];
-            
+
             // Check if coin object is null (destroyed)
             if (coinData.coinObject == null)
             {
@@ -61,7 +61,7 @@ public class CoinManager : MonoBehaviour
             {
                 Vector3 coinPos = coinData.coinObject.transform.position;
                 Vector3 playerPos = player.position;
-                
+
                 // Move towards player
                 coinData.coinObject.transform.position = Vector3.MoveTowards(
                     coinPos, playerPos, magnetSpeed * Time.deltaTime);
@@ -69,9 +69,8 @@ public class CoinManager : MonoBehaviour
                 // Check pickup distance
                 if (Vector3.Distance(coinPos, playerPos) <= pickupDistance)
                 {
-                    // Remove from list first to avoid double removal
+                    PlayerStats.Instance.AddCoin(1);
                     activeCoins.RemoveAt(i);
-                    // Then release to pool
                     ObjectSpawner.Instance.ReleaseCoin(coinData.coinObject);
                 }
             }

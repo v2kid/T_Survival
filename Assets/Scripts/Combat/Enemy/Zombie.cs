@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Zombie : EnemyBase
 {
@@ -7,11 +8,29 @@ public class Zombie : EnemyBase
         base.Initialize(data, playerStats_);
         AddState(new MoveState());
         AddState(new AttackState());
+        AddState(new DieState());
         ChangeState(EnemyStateID.Move);
     }
 
-    
-    
+    private IEnumerator DissolveEffect()
+    {
+        float dissolveDuration = 2f;
+        float elapsed = 0f;
+        while (elapsed < dissolveDuration)
+        {
+            elapsed += Time.deltaTime;
+            float dissolveAmount = Mathf.Clamp01(elapsed / dissolveDuration);
+            if (_renderer != null)
+                _renderer.material.SetFloat("_DissolveAmount", dissolveAmount);
+            yield return null;
+        }
+    }
+    public override void PlayDieEffect()
+    {
+        base.PlayDieEffect();
+        StartCoroutine(DissolveEffect());
+
+    }
 
     public override void OnDeath()
     {

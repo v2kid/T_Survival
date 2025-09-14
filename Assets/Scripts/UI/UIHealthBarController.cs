@@ -97,11 +97,10 @@ public class UIHealthBarController : MonoBehaviour
     {
         UIHealthBar healthBar = GetFromPool();
         healthBar.SetHealth(maxHealth, maxHealth);
-        Utilities.WaitAfter(0.1f, () =>
+        Global.Utilities.WaitAfter(0.1f, () =>
         {
             healthBar.gameObject.SetActive(true);
-
-        });
+            });
 
         activeHealthBars.Add(new HealthBarData { target = target, healthBar = healthBar });
         return healthBar;
@@ -150,13 +149,13 @@ public class UIHealthBarController : MonoBehaviour
 }
 public struct HealthBarData
 {
-    public Transform target; 
-    public UIHealthBar healthBar; 
+    public Transform target;
+    public UIHealthBar healthBar;
 }
 
 public interface IHealthBar
 {
-    void RegisterHealthBar(Transform target, float maxHealth);
-    void SetHealth(float health, float maxHealth);
-    void UnregisterHealthBar(UIHealthBar healthBar);
+    public void RegisterHealthBar(Transform target, float maxHealth);
+    public void SetHealth(float health, float maxHealth);
+    public void UnregisterHealthBar();
 }
