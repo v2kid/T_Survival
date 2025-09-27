@@ -200,7 +200,6 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
 
     public void Heal(float amount)
     {
-        Debug.Log($"Healing for {amount}");
         CurrentHealth.Value = Mathf.Min(CurrentHealth.Value + amount, MaxHealth.Value);
         SetHealth(CurrentHealth.Value, MaxHealth.Value);
 

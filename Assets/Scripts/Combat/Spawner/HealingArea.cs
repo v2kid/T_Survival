@@ -1,36 +1,80 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-public class HealingArea : MonoBehaviour
+public class HealingArea : MonoBehaviour, IAreaEffect
 {
-    public float healingAmount = 5f;
-    public float healingInterval = 1f;
-    public LayerMask playerLayer; // Set this in the inspector to the Player layer
+    private float healingAmount = 5;
+    private float healingInterval;
+    private float activationDelay;
+    private float existingDuration;
+    private float healingRadius = 1.6f;
 
+    public LayerMask playerLayer;
+
+    private bool isActive = false;
+    private bool isEffectRunning = true;
     private float timer = 0f;
-    private SphereCollider sphereCollider;
 
-    private void Awake()
+    public bool IsRunning => isEffectRunning;
+
+    public void Initialize(AreaEffectConfig config)
     {
-        // Add or get SphereCollider, set as trigger and set radius
-        sphereCollider = GetComponent<SphereCollider>();
-        if (sphereCollider == null)
-            sphereCollider = gameObject.AddComponent<SphereCollider>();
-        sphereCollider.isTrigger = true;
+        healingInterval = config.interval;
+        activationDelay = config.activationDelay;
+        existingDuration = config.duration;
+
+        isActive = false;
+        isEffectRunning = true;
+        timer = 0f;
     }
 
+    public void RestartEffect(AreaEffectConfig config)
+    {
+        Initialize(config);
+    }
+
+    public void Stop()
+    {
+        isEffectRunning = false;
+        isActive = false;
+    }
 
     private void Update()
     {
+        if (!isEffectRunning) return;
+
+        // Wait for activation delay
+        if (!isActive)
+        {
+            activationDelay -= Time.deltaTime;
+            if (activationDelay <= 0f)
+                isActive = true;
+            return;
+        }
+
         timer += Time.deltaTime;
+        existingDuration -= Time.deltaTime;
+
         if (timer >= healingInterval)
         {
             timer = 0f;
-            PlayerStats.Instance.Heal(healingAmount);
+            CheckAndHealPlayer();
+        }
+        if (existingDuration <= 0f)
+        {
+            Stop();
         }
     }
 
+    private void CheckAndHealPlayer()
+    {
+        if (PlayerStats.Instance != null)
+        {
+            float distanceToPlayer = Vector3.Distance(transform.position, PlayerStats.Instance.transform.position);
 
+            if (distanceToPlayer <= healingRadius)
+            {
+                PlayerStats.Instance.Heal(healingAmount);
+            }
+        }
+    }
 }

@@ -2,18 +2,34 @@ using UnityEngine;
 
 public class Shuriken_Fan : Skill_Base
 {
+    private AreaEffectConfig areaEffectConfig;
     public Shuriken_Fan(AbilitiesSO skillData) : base(skillData)
     {
-
+        areaEffectConfig = new AreaEffectConfig
+        {
+            duration = 1.5f,
+            interval = 0.3f,
+            activationDelay = 0.1f
+        };
     }
 
     protected override void OnUse()
     {
+
         base.OnUse();
-        Debug.Log("Shuriken Fan used");
         BaseVisualEffect vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Shuriken_Fan);
         vfx.transform.position = PlayerStats.Instance.transform.position + new Vector3(0, 0.5f, 0);
-        vfx.Play(3);
+        vfx.Play();
+        DealDamageArea area = vfx.GetComponent<DealDamageArea>();
+        if (area != null)
+        {
+            area.Initialize(areaEffectConfig);
+        }
+        else
+        {
+            area = vfx.gameObject.AddComponent<DealDamageArea>();
+            area.Initialize(areaEffectConfig);
+        }
 
     }
 

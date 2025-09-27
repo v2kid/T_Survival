@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 2839515649385330179}
   - component: {fileID: 8136067490942977135}
   - component: {fileID: 3692735708820653155}
-  - component: {fileID: 528971032476101161}
   m_Layer: 0
   m_Name: HealingTotem
   m_TagString: Untagged
@@ -4872,32 +4871,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892c0ff6a9e964ca594a631bde72e172, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healingAmount: 5
-  healingInterval: 1
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
---- !u!135 &528971032476101161
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1261393226147339872}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 1.6
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1408981222204754274
 GameObject:
   m_ObjectHideFlags: 0

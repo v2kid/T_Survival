@@ -1,60 +1,72 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
-public class DealDamageArea : MonoBehaviour
+public class DealDamageArea : MonoBehaviour, IAreaEffect
 {
-
-
     [Header("Damage Settings")]
     public LayerMask enemyLayer;
-    public float damage = 10f;
-    public float damageInterval = 0.4f;
-
-    [Header("Timing Settings")]
-    public float activationDelay = 0.2f;
-    private float duration = 1.2f;
-
     private Collider hitboxCollider;
-    private float damageTimer;
-    private float lifetimeTimer;
-    private bool isActive;
 
-    private void Awake()
+    private float timer = 0f;
+    private float activationDelay;
+    private bool isActive = false;
+    private bool isEffectRunning = true;
+    private float damageInterval;
+    private float existingDuration;
+
+    public bool IsRunning => isEffectRunning;
+
+    public void Initialize(AreaEffectConfig config)
     {
         hitboxCollider = GetComponent<Collider>();
         hitboxCollider.isTrigger = true;
+        activationDelay = config.activationDelay;
+        damageInterval = config.interval;
+        existingDuration = config.duration;
+        isActive = false;
+        isEffectRunning = true;
+        timer = 0f;
+    }
+
+    public void RestartEffect(AreaEffectConfig config)
+    {
+        Initialize(config);
+    }
+
+    public void Stop()
+    {
+        isEffectRunning = false;
+        isActive = false;
     }
 
     private void Update()
     {
-        lifetimeTimer += Time.deltaTime;
+        if (!isEffectRunning) return;
 
-        // Handle activation delay
-        if (!isActive && lifetimeTimer >= activationDelay)
+        if (!isActive)
         {
-            isActive = true;
-        }
-
-        // Handle damage dealing
-        if (isActive)
-        {
-            damageTimer += Time.deltaTime;
-            if (damageTimer >= damageInterval)
+            activationDelay -= Time.deltaTime;
+            if (activationDelay <= 0f)
             {
-                DealAreaDamage();
-                damageTimer = 0f;
+                isActive = true;
             }
+            return;
         }
 
-        // Handle lifetime expiration
-        if (lifetimeTimer >= duration)
+        timer += Time.deltaTime;
+        existingDuration -= Time.deltaTime;
+
+        if (timer >= damageInterval)
         {
-            DeactivateHitbox();
+            timer = 0f;
+            DealAreaDamage();
         }
 
+        if (existingDuration <= 0f)
+        {
+            Stop();
+        }
     }
-
-
 
     private void DealAreaDamage()
     {
@@ -67,7 +79,7 @@ public class DealDamageArea : MonoBehaviour
         {
             if (targetCollider.TryGetComponent<IDamageable>(out var damageable))
             {
-                DamageResult damageResult = new DamageResult { FinalDamage = damage };
+                DamageResult damageResult = new DamageResult { FinalDamage = 10 };
                 Vector3 hitPoint = targetCollider.ClosestPoint(center);
                 damageable.TakeDamage(damageResult, hitPoint);
             }
@@ -80,11 +92,4 @@ public class DealDamageArea : MonoBehaviour
                         hitboxCollider.bounds.extents.y,
                         hitboxCollider.bounds.extents.z);
     }
-
-    private void DeactivateHitbox()
-    {
-        isActive = false;
-    }
-
-
 }
