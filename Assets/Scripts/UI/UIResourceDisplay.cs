@@ -9,7 +9,7 @@ public class UIResourceDisplay : MonoBehaviour
     {
         Global.Utilities.WaitAfter(0.1f, () =>
         {
-            PlayerStats.Instance.CoinObservable.Subscribe(OnCoinChanged, true);
+            PlayerStats.Instance.Coin.Subscribe(OnCoinChanged, true);
         });
 
     }

@@ -9,6 +9,9 @@ public class GameDataManager : MonoBehaviour
 
     public Dictionary<VisualEffectID, BaseVisualEffect> VisualEffectDictionary { get; private set; }
 
+    //load skillSO
+    public List<AbilitiesSO> AllSkills = new();
+
 
     private void Awake()
     {
@@ -19,13 +22,20 @@ public class GameDataManager : MonoBehaviour
         }
         Instance = this;
         LoadAllVisualEffect();
+        LoadSkillData();
     }
 
     private void Start()
     {
     }
 
-  
+    private void LoadSkillData()
+    {
+        AbilitiesSO[] skillSOs = Resources.LoadAll<AbilitiesSO>("AbilitiesSO/");
+        AllSkills = skillSOs.ToList();
+    }
+
+
 
 
     private void LoadAllVisualEffect()

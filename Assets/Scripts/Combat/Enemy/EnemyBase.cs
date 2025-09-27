@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 
-public abstract class EnemyBase : MonoBehaviour, IHealthBar
+public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
 {
     public EnemySO enemyData;
     protected EnemyStat enemyStat;
@@ -95,7 +95,22 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar
             (result.IsMiss ? TextType.Miss : TextType.Normal)
         );
         SetHealth(enemyStat.currentHealth, enemyStat.maxHealth);
+        var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Blood);
+        vfx.transform.position = hitPoint + Vector3.up * 0.5f;
+        vfx.Play();
     }
+    public virtual void Heal(float amount)
+    {
+        enemyStat.currentHealth = Mathf.Min(enemyStat.currentHealth + amount, enemyStat.maxHealth);
+        SetHealth(enemyStat.currentHealth, enemyStat.maxHealth);
+        UIDamageTextManager.Instance.ShowDamageText(transform.position, amount, TextType.Heal);
+        var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Heal);
+        vfx.transform.SetParent(transform);
+        vfx.transform.localPosition = Vector3.zero;
+        vfx.Play();
+    }
+    public float GetCurrentHealth() => enemyStat.currentHealth;
+    public float GetMaxHealth() => enemyStat.maxHealth;
 
     public virtual void Attack() //use in animation event
     {
@@ -152,7 +167,6 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar
 
 }
 
-// --- Stats data class ---
 public class EnemyStat
 {
     public float maxHealth;

@@ -69,7 +69,7 @@ public class CoinManager : MonoBehaviour
                 // Check pickup distance
                 if (Vector3.Distance(coinPos, playerPos) <= pickupDistance)
                 {
-                    PlayerStats.Instance.AddCoin(1);
+                    PlayerStats.Instance.Coin.Value += 1; // Increment coin count
                     activeCoins.RemoveAt(i);
                     ObjectSpawner.Instance.ReleaseCoin(coinData.coinObject);
                 }

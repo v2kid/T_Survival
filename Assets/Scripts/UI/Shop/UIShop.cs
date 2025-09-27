@@ -19,7 +19,7 @@ public class UIShop : MonoBehaviour
         var stats = PlayerStats.Instance;
 
         stats.HpRegen.Subscribe((o, n) => hpRegen.text = o == n ? $"HpRegen: {n:F0}" : $"HpRegen: {o:F0} -> {n:F0}", true);
-        stats.CoinObservable.Subscribe((o, n) => coinText.text = o == n ? $"Coin: {n}" : $"Coin: {o} -> {n}", true);
+        stats.Coin.Subscribe((o, n) => coinText.text = o == n ? $"Coin: {n}" : $"Coin: {o} -> {n}", true);
         stats.MaxHealth.Subscribe((o, n) => maxHealthText.text = o == n ? $"MaxHealth: {n:F0}" : $"MaxHealth: {o:F0} -> {n:F0}", true);
         stats.MeleeDamage.Subscribe((o, n) => damageText.text = o == n ? $"Damage: {n:F0}" : $"Damage: {o:F0} -> {n:F0}", true);
         stats.Armor.Subscribe((o, n) => armor.text = o == n ? $"Armor: {n:F0}" : $"Armor: {o:F0} -> {n:F0}", true);

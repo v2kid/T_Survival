@@ -30,12 +30,18 @@ public class PlayerControl : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool debug;
 
+
+    //key input
+
+
+
     // Start is called before the first frame update
 
     void Start()
     {
         playerStats = GetComponent<PlayerStats>();
     }
+
 
     // Update is called once per frame
     void Update()
@@ -56,15 +62,14 @@ public class PlayerControl : MonoBehaviour
             Attack(1);
         }
 
-        if (Input.GetKeyDown(KeyCode.J))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            Attack(0);
+            //play skill 1
         }
 
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            Attack(1);
-        }
+
+
+
 
     }
 
