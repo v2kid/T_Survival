@@ -9,6 +9,23 @@ public class GameDataManager : MonoBehaviour
 
     public Dictionary<VisualEffectID, BaseVisualEffect> VisualEffectDictionary { get; private set; }
 
+    //rarity color
+    public Dictionary<Rarity, Color> RarityColorDictionary = new()
+    {
+        { Rarity.Common, Color.white },
+        { Rarity.Rare, Color.green },
+        { Rarity.Epic, Color.blue },
+        { Rarity.Legendary, new Color(1f, 0.5f, 0f) } // orange
+    };
+    public void GetRarityColor(Rarity rarity, out Color color)
+    {
+        if (RarityColorDictionary.TryGetValue(rarity, out color))
+        {
+            return;
+        }
+        color = Color.white;
+    }
+
     //load skillSO
     public List<AbilitiesSO> AllSkills = new();
 

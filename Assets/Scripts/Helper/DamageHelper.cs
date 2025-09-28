@@ -19,7 +19,7 @@ public static class DamageHelper
         float critMultiplier, // vd: 2.0 = x2 damage
         float armor,          // % giảm damage (0-100)
         float dodgeChance,    // 0-1
-        float lifeStealRate = 0f // 0-1, only player have
+        float lifeStealRate = -1f // 0-1, only player have
     )
     {
         DamageResult result = new DamageResult();
@@ -44,11 +44,14 @@ public static class DamageHelper
         // 3. Apply armor reduction
         float reduced = damage * (1f - Mathf.Clamp01(armor / 100f));
         result.FinalDamage = Mathf.Max(0, reduced);
-
-        // 4. LifeSteal (optional, set flag if used)
-        if (lifeStealRate > 0f)
+        result.IsLifeSteal = false;
+        if (lifeStealRate != 1)
         {
-            result.IsLifeSteal = true;
+            float roll = Random.value;
+            if (roll < lifeStealRate)
+            {
+                result.IsLifeSteal = true;
+            }
         }
 
         return result;

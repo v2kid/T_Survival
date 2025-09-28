@@ -15,4 +15,4 @@ MonoBehaviour:
   skillID: 0
   skillIcon: {fileID: 21300000, guid: 224554bf76e9346629e2a29e99fc972d, type: 3}
   skillName: 123
-  cooldown: 7
+  cooldown: 1

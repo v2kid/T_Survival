@@ -1,8 +1,14 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+using System.Linq;
+using System.Collections.Generic;
+using DG.Tweening;
 
 public class UIShop : MonoBehaviour
 {
+    private Canvas _canvas;
+    private CanvasGroup _canvasGroup;
     [SerializeField] private TextMeshProUGUI coinText;
     [SerializeField] private TextMeshProUGUI maxHealthText;
     [SerializeField] private TextMeshProUGUI hpRegen;
@@ -12,21 +18,119 @@ public class UIShop : MonoBehaviour
     [SerializeField] private TextMeshProUGUI lifeStealRate;
     [SerializeField] private TextMeshProUGUI critChance;
     [SerializeField] private TextMeshProUGUI critMultiplier;
-    [SerializeField] private TextMeshProUGUI coinDropChance;
+    [SerializeField] private Button countinueButton;
+
+    [SerializeField] private StatUpgradeConfigSO statUpgradeConfig;
+    [SerializeField] private UIUpgradeSlot UpgradeSlotPrefab;
+    [SerializeField] private Transform upgradeSlotParent;
+    [SerializeField] private Button RerollButton;
+
+    //cach slots 
+    private List<UIUpgradeSlot> currentSlots = new();
+    private System.Random rng = new System.Random();
+    private void Awake()
+    {
+        _canvas = GetComponent<Canvas>();
+        _canvasGroup = GetComponent<CanvasGroup>();
+    }
 
     private void Start()
     {
-        var stats = PlayerStats.Instance;
-
-        stats.HpRegen.Subscribe((o, n) => hpRegen.text = o == n ? $"HpRegen: {n:F0}" : $"HpRegen: {o:F0} -> {n:F0}", true);
-        stats.Coin.Subscribe((o, n) => coinText.text = o == n ? $"Coin: {n}" : $"Coin: {o} -> {n}", true);
-        stats.MaxHealth.Subscribe((o, n) => maxHealthText.text = o == n ? $"MaxHealth: {n:F0}" : $"MaxHealth: {o:F0} -> {n:F0}", true);
-        stats.MeleeDamage.Subscribe((o, n) => damageText.text = o == n ? $"Damage: {n:F0}" : $"Damage: {o:F0} -> {n:F0}", true);
-        stats.Armor.Subscribe((o, n) => armor.text = o == n ? $"Armor: {n:F0}" : $"Armor: {o:F0} -> {n:F0}", true);
-        stats.LifeSteal.Subscribe((o, n) => lifeSteal.text = o == n ? $"LifeSteal: {(n * 100f):F1}%" : $"LifeSteal: {(o * 100f):F1}% -> {(n * 100f):F1}%", true);
-        stats.LifeStealRate.Subscribe((o, n) => lifeStealRate.text = o == n ? $"LifeStealRate: {(n * 100f):F1}%" : $"LifeStealRate: {(o * 100f):F1}% -> {(n * 100f):F1}%", true);
-        stats.CritChance.Subscribe((o, n) => critChance.text = o == n ? $"CritChance: {(n * 100f):F1}%" : $"CritChance: {(o * 100f):F1}% -> {(n * 100f):F1}%", true);
-        stats.CritMultiplier.Subscribe((o, n) => critMultiplier.text = o == n ? $"CritMultiplier: {n:F2}x" : $"CritMultiplier: {o:F2}x -> {n:F2}x", true);
-        stats.CoinDropChance.Subscribe((o, n) => coinDropChance.text = o == n ? $"CoinDropChance: {(n * 100f):F1}%" : $"CoinDropChance: {(o * 100f):F1}% -> {(n * 100f):F1}%", true);
+        PlayerStats.Instance.Coin.Subscribe((o, n) => coinText.text = n.ToString());
+        PlayerStats.Instance.OnStatChanged += HandleStatChanged;
+        countinueButton.onClick.AddListener(() =>
+        {
+            ActiveCanvas(false);
+            GameplayManager.Instance.StartGame();
+        });
+        RerollButton.onClick.AddListener(Reroll);
+        Reroll();
     }
+
+    private void HandleStatChanged()
+    {
+        var stats = PlayerStats.Instance;
+        CharacterStats baseStats = stats.Stats;
+        CharacterStats modified = stats.ModifiedStats;
+
+        maxHealthText.text = TextHelper.FormatStat(StatType.Health, baseStats.MaxHealth, modified.MaxHealth);
+        hpRegen.text = TextHelper.FormatStat(StatType.Health, baseStats.HpRegen, modified.HpRegen);
+        damageText.text = TextHelper.FormatStat(StatType.Damage, baseStats.Damage, modified.Damage);
+        armor.text = TextHelper.FormatStat(StatType.Armor, baseStats.Armor, modified.Armor);
+        lifeSteal.text = TextHelper.FormatStat(StatType.LifeSteal, baseStats.LifeSteal, modified.LifeSteal);
+        lifeStealRate.text = TextHelper.FormatStat(StatType.LifeStealRate, baseStats.LifeStealRate, modified.LifeStealRate);
+        critChance.text = TextHelper.FormatStat(StatType.CritChance, baseStats.CritChance, modified.CritChance);
+        critMultiplier.text = TextHelper.FormatStat(StatType.CritDamage, baseStats.CritMultiplier, modified.CritMultiplier);
+    }
+
+
+    private StatType PickRandomStatType()
+    {
+        var dict = System.Enum.GetValues(typeof(StatType))
+            .Cast<StatType>()
+            .ToDictionary(s => s, s => 1f); // equal weight
+
+        var picker = new WeightedRandomPicker<StatType>(dict);
+        return picker.GetRandomItem(rng);
+    }
+    private void Reroll()
+    {
+        // clear slot cũ
+        currentSlots.Clear();
+        foreach (Transform child in upgradeSlotParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // pick random 3 option
+        for (int i = 0; i < 3; i++)
+        {
+            var statType = PickRandomStatType();
+            var rarity = PickRandomRarity();
+
+            var config = statUpgradeConfig.GetConfig(statType, rarity);
+
+            if (config != null)
+            {
+                var slot = Instantiate(UpgradeSlotPrefab, upgradeSlotParent);
+                slot.Setup(config, statType);
+                slot.OnUpgradeClicked += (stat, value) =>
+                {
+                    OnUpgradeClicked(stat, value);
+                    Destroy(slot.gameObject);
+                };
+                currentSlots.Add(slot);
+            }
+        }
+    }
+
+    private void OnUpgradeClicked(StatType statType, float value)
+    {
+        PlayerStats.Instance.ChangeStat(statType, value);
+
+    }
+
+    private Rarity PickRandomRarity()
+    {
+        var dict = new Dictionary<Rarity, float>
+        {
+            { Rarity.Common, 50f },
+            { Rarity.Rare, 30f },
+            { Rarity.Epic, 15f },
+            { Rarity.Legendary, 5f },
+        };
+
+        var picker = new WeightedRandomPicker<Rarity>(dict);
+        return picker.GetRandomItem(rng);
+    }
+
+    public void ActiveCanvas(bool active)
+    {
+        _canvas.enabled = active;
+        //dofade 
+        _canvasGroup.DOFade(active ? 1 : 0, 0.2f);
+
+
+    }
+
 }

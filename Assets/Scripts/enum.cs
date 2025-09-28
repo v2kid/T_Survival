@@ -17,6 +17,19 @@ public enum StatType
     CritDamage,
     LifeSteal,
     LifeStealRate,
-    DodgeChance,
-    DropCoinBonus,
+    Evasion,
+}
+
+public enum DisplayStatType
+{
+    Number,
+    Percentage,
+}
+
+public enum Rarity
+{
+    Common,
+    Rare,
+    Epic,
+    Legendary
 }

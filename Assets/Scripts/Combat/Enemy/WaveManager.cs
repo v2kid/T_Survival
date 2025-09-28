@@ -5,6 +5,17 @@ using UnityEngine;
 
 public class WaveManager : MonoBehaviour
 {
+
+    public static WaveManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
     [Header("Setup")]
     public List<Transform> spawnPoints;       // các điểm spawn
     public PlayerStats playerStats;
@@ -16,7 +27,7 @@ public class WaveManager : MonoBehaviour
     public int aliveEnemies = 0;             // số enemy còn sống
 
     public static event Action<int> OnWaveStarted;   // int = wave index
-    public static event Action<int> OnWaveCleared;   // int = wave index
+    public static event Action OnWaveCleared;   // int = wave index
 
     private bool isSpawningWave = false;
 
@@ -64,7 +75,7 @@ public class WaveManager : MonoBehaviour
         enemyObj.Initialize(entry.enemyData, playerStats);
 
         aliveEnemies++;
-        enemyObj.OnDie += HandleEnemyDeath; 
+        enemyObj.OnDie += HandleEnemyDeath;
     }
 
     private void HandleEnemyDeath()
@@ -72,7 +83,7 @@ public class WaveManager : MonoBehaviour
         aliveEnemies--;
         if (aliveEnemies <= 0 && !isSpawningWave)
         {
-            OnWaveCleared?.Invoke(currentWaveIndex);
+            OnWaveCleared?.Invoke();
             currentWaveIndex++;
         }
     }

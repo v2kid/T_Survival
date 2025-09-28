@@ -6768,7 +6768,7 @@ MonoBehaviour:
     type: 3}
   poolSize: 30
   displayDuration: 2
-  normalColor: {r: 0.9622642, g: 0.8367613, b: 0.6036846, a: 1}
+  normalColor: {r: 0.9245283, g: 0.39016297, b: 0.20496617, a: 1}
   criticalColor: {r: 1, g: 0, b: 0, a: 1}
   healColor: {r: 0, g: 1, b: 0, a: 1}
   magicColor: {r: 0, g: 1, b: 1, a: 1}
@@ -9319,7 +9319,7 @@ PrefabInstance:
     - target: {fileID: 5020487948884535800, guid: 2154489e651e5475fb69619bd4cfa5bd,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 2.53
       objectReference: {fileID: 0}
     - target: {fileID: 5020487948884535800, guid: 2154489e651e5475fb69619bd4cfa5bd,
         type: 3}
@@ -13591,21 +13591,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c257b953ce144180a5466e452cfa806, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coin: 0
-  coinDropChance: 0.1
-  maxHealth: 100
-  moveSpeed: 5
-  meleeDamage: 10
+  coin:
+    _value: 0
+  coinDropChance:
+    _value: 0.1
+  maxHealth:
+    _value: 100
+  currentHealth:
+    _value: 100
+  moveSpeed:
+    _value: 5
+  meleeDamage:
+    _value: 10
   attackSpeed: 1
   attackRange: 1.5
-  critChance: 0
-  critMultiplier: 2
-  armor: 0
-  dodgeChance: 0
-  lifeSteal: 0
-  lifeStealRate: 0
-  hpRegen: 1
-  AllSkills: 02000000
+  critChance:
+    _value: 0
+  critMultiplier:
+    _value: 2
+  armor:
+    _value: 0
+  dodgeChance:
+    _value: 0
+  lifeSteal:
+    _value: 0
+  lifeStealRate:
+    _value: 0
+  hpRegen:
+    _value: 1
+  AllSkills: 0000000002000000
 --- !u!114 &8910894964888130070
 MonoBehaviour:
   m_ObjectHideFlags: 0

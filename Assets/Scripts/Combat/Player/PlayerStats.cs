@@ -10,53 +10,51 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
     [SerializeField] private ObservableValue<int> coin = new(0);
     public ObservableValue<int> Coin => coin;
 
-    [SerializeField, Range(0f, 1f)] private ObservableValue<float> coinDropChance = new(0.1f);
-    public ObservableValue<float> CoinDropChance => coinDropChance;
+    public CharacterStats Stats = new CharacterStats()
+    {
+        CoinDropChance = 0.1f,
+        MaxHealth = 100f,
+        CurrentHealth = 100f,
+        MoveSpeed = 5f,
+        Damage = 10f,
+        AttackSpeed = 1f,
+        AttackRange = 1f,
+        CritChance = 0.1f,
+        CritMultiplier = 1.5f,
+        Armor = 5f,
+        Evasion = 0.05f,
+        LifeSteal = 0.2f,
+        LifeStealRate = 0.1f,
+        HpRegen = 1f
+    };
 
-    [Header("Health")]
-    [SerializeField] private ObservableValue<float> maxHealth = new(100f);
-    public ObservableValue<float> MaxHealth => maxHealth;
+    public CharacterStats ModifiedStats = new CharacterStats(); //stats after item and buffs
 
-    [SerializeField] private ObservableValue<float> currentHealth = new(100f);
-    public ObservableValue<float> CurrentHealth => currentHealth;
+    public CharacterStats CurrentStats
+    {
+        get
+        {
+            return new CharacterStats()
+            {
+                CoinDropChance = Stats.CoinDropChance + ModifiedStats.CoinDropChance,
+                MaxHealth = Stats.MaxHealth + ModifiedStats.MaxHealth,
+                CurrentHealth = Stats.CurrentHealth, // current health is managed separately
+                MoveSpeed = Stats.MoveSpeed + ModifiedStats.MoveSpeed,
+                Damage = Stats.Damage + ModifiedStats.Damage,
+                AttackSpeed = Stats.AttackSpeed + ModifiedStats.AttackSpeed,
+                AttackRange = Stats.AttackRange + ModifiedStats.AttackRange,
+                CritChance = Stats.CritChance + ModifiedStats.CritChance,
+                CritMultiplier = Stats.CritMultiplier + ModifiedStats.CritMultiplier,
+                Armor = Stats.Armor + ModifiedStats.Armor,
+                Evasion = Stats.Evasion + ModifiedStats.Evasion,
+                LifeSteal = Stats.LifeSteal + ModifiedStats.LifeSteal,
+                LifeStealRate = Stats.LifeStealRate + ModifiedStats.LifeStealRate,
+                HpRegen = Stats.HpRegen + ModifiedStats.HpRegen
+            };
+        }
+    }
 
-    [Header("Movement")]
-    [SerializeField] private ObservableValue<float> moveSpeed = new(5f);
-    public ObservableValue<float> MoveSpeed => moveSpeed;
-
-    [Header("Combat")]
-    [SerializeField] private ObservableValue<float> meleeDamage = new(10f);
-    public ObservableValue<float> MeleeDamage => meleeDamage;
-
-    [SerializeField] private float attackSpeed = 1f; // fixed, not observable
-    public float AttackSpeed => attackSpeed;
-
-    [SerializeField] private float attackRange = 1.5f; // fixed, not observable
-    public float AttackRange => attackRange;
-
-    [SerializeField, Range(0f, 1f)] private ObservableValue<float> critChance = new(0f);
-    public ObservableValue<float> CritChance => critChance;
-
-    [SerializeField] private ObservableValue<float> critMultiplier = new(2f);
-    public ObservableValue<float> CritMultiplier => critMultiplier;
-
-    [Header("Defense")]
-    [SerializeField] private ObservableValue<float> armor = new(0f); // flat damage reduction
-    public ObservableValue<float> Armor => armor;
-
-    [SerializeField, Range(0f, 1f)] private ObservableValue<float> dodgeChance = new(0f);
-    public ObservableValue<float> DodgeChance => dodgeChance;
-
-    [Header("Other")]
-    [SerializeField] private ObservableValue<float> lifeSteal = new(0f); // % heal by dmg dealt
-    public ObservableValue<float> LifeSteal => lifeSteal;
-
-    [SerializeField, Range(0f, 1f)] private ObservableValue<float> lifeStealRate = new(0f);
-    public ObservableValue<float> LifeStealRate => lifeStealRate;
-
-    [SerializeField] private ObservableValue<float> hpRegen = new(1f);
-    public ObservableValue<float> HpRegen => hpRegen;
-
+    public float CurrentHP;
     private UIHealthBar _healthBar;
     private float timer;
     private float regenInterval = 1f;
@@ -66,7 +64,7 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
     private KeyCode Skill_1 = KeyCode.J;
     private KeyCode Skill_2 = KeyCode.K;
 
-
+    public event Action OnStatChanged;
 
     public event Action OnDataInit;
 
@@ -117,7 +115,6 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
             Skill_Base skill = SkillInstances[index];
             if (skill.TryUse())
             {
-                Debug.Log($"Used skill: {skill.SkillData.skillName}");
             }
             else
             {
@@ -137,7 +134,8 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
 
     private void Start()
     {
-        RegisterHealthBar(transform, MaxHealth.Value);
+        RegisterHealthBar(transform, CurrentStats.MaxHealth);
+        CurrentHP = CurrentStats.CurrentHealth;
         RegisterAllSkills();
         OnDataInit?.Invoke();
     }
@@ -148,7 +146,7 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
         if (timer >= regenInterval)
         {
             timer = 0f;
-            HandleRegen(HpRegen.Value);
+            HandleRegen(CurrentStats.HpRegen);
         }
         UpdateSkillCooldowns(Time.deltaTime);
     }
@@ -169,11 +167,11 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
     {
         DamageResult result = DamageHelper.CalculateDamage(
             amount,
-            CritChance.Value,
-            CritMultiplier.Value,
-            Armor.Value,
-            DodgeChance.Value,
-            LifeStealRate.Value
+            CurrentStats.CritChance,
+            CurrentStats.CritMultiplier,
+            CurrentStats.Armor,
+            CurrentStats.Evasion,
+            CurrentStats.LifeStealRate
         );
 
         TakeDamage(result, transform.position);
@@ -182,17 +180,17 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
     public DamageResult DealDamage()
     {
         DamageResult result = DamageHelper.CalculateDamage(
-            MeleeDamage.Value,
-            CritChance.Value,
-            CritMultiplier.Value,
+            CurrentStats.Damage,
+            CurrentStats.CritChance,
+            CurrentStats.CritMultiplier,
             0, // target armor
             0, // target dodge
-            LifeStealRate.Value
+         CurrentStats.LifeStealRate
         );
 
         if (result.IsLifeSteal)
         {
-            float healAmount = result.FinalDamage * LifeSteal.Value;
+            float healAmount = result.FinalDamage * CurrentStats.LifeSteal;
             Heal(healAmount);
         }
         return result;
@@ -200,9 +198,10 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
 
     public void Heal(float amount)
     {
-        CurrentHealth.Value = Mathf.Min(CurrentHealth.Value + amount, MaxHealth.Value);
-        SetHealth(CurrentHealth.Value, MaxHealth.Value);
+        // CurrentHealth.Value = Mathf.Min(CurrentHealth.Value + amount, MaxHealth.Value);
+        // SetHealth(CurrentHealth.Value, MaxHealth.Value);
 
+        CurrentHP = Mathf.Min(CurrentHP + amount, CurrentStats.MaxHealth);
         UIDamageTextManager.Instance.ShowDamageText(transform.position, amount, TextType.Heal);
 
         var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Heal);
@@ -213,8 +212,8 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
 
     private void HandleRegen(float amount) // no show text
     {
-        CurrentHealth.Value = Mathf.Min(CurrentHealth.Value + amount, MaxHealth.Value);
-        SetHealth(CurrentHealth.Value, MaxHealth.Value);
+        CurrentHP = Mathf.Min(CurrentHP + amount, CurrentStats.MaxHealth);
+        SetHealth(CurrentHP, CurrentStats.MaxHealth);
     }
 
 
@@ -238,9 +237,10 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
             return;
         }
 
-        CurrentHealth.Value -= result.FinalDamage;
-        CurrentHealth.Value = Mathf.Max(CurrentHealth.Value, 0);
-        SetHealth(CurrentHealth.Value, MaxHealth.Value);
+        CurrentHP -= result.FinalDamage;
+        // CurrentHealth.Value = Mathf.Max(CurrentHealth.Value, 0);
+
+        SetHealth(CurrentHP, CurrentStats.MaxHealth);
 
         UIDamageTextManager.Instance.ShowDamageText(
             transform.position,
@@ -249,10 +249,65 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
         );
     }
 
-    public float GetCurrentHealth() => CurrentHealth.Value;
+    public float GetCurrentHealth() => CurrentHP;
 
 
 
-    public float GetMaxHealth() => MaxHealth.Value;
+    public float GetMaxHealth() => CurrentStats.MaxHealth;
 
+
+    public void ChangeStat(StatType t, float value)
+    {
+        switch (t)
+        {
+            case StatType.Health:
+                ModifiedStats.MaxHealth += value;
+                CurrentHP += value;
+                SetHealth(CurrentHP, CurrentStats.MaxHealth);
+                break;
+            case StatType.Damage:
+                ModifiedStats.Damage += value;
+                break;
+            case StatType.CritChance:
+                ModifiedStats.CritChance += value;
+                break;
+            case StatType.CritDamage:
+                ModifiedStats.CritMultiplier += value;
+                break;
+            case StatType.LifeSteal:
+                ModifiedStats.LifeSteal += value;
+                break;
+            case StatType.LifeStealRate:
+                ModifiedStats.LifeStealRate += value;
+                break;
+            case StatType.Armor:
+                ModifiedStats.Armor += value;
+                break;
+            case StatType.Evasion:
+                ModifiedStats.Evasion += value;
+                break;
+            default:
+                Debug.LogWarning($"Unhandled stat type: {t}");
+                break;
+        }
+        OnStatChanged?.Invoke();
+    }
+
+}
+public struct CharacterStats
+{
+    public float CoinDropChance;
+    public float MaxHealth;
+    public float CurrentHealth;
+    public float MoveSpeed;
+    public float Damage;
+    public float AttackSpeed;
+    public float AttackRange;
+    public float CritChance;
+    public float CritMultiplier;
+    public float Armor;
+    public float Evasion;
+    public float LifeSteal;
+    public float LifeStealRate;
+    public float HpRegen;
 }
