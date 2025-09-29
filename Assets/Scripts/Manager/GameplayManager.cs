@@ -29,14 +29,12 @@ public class GameplayManager : MonoBehaviour
 
     public void StartGame()
     {
-        Time.timeScale = 1f;
         WaveManager.Instance.StartNextWave();
     }
 
 
     public void PauseGame()
     {
-        Time.timeScale = 0f;
     }
 
 

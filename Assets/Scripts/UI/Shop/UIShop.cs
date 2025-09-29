@@ -127,10 +127,46 @@ public class UIShop : MonoBehaviour
     public void ActiveCanvas(bool active)
     {
         _canvas.enabled = active;
-        //dofade 
-        _canvasGroup.DOFade(active ? 1 : 0, 0.2f);
+        if (active)
+        {
+            _canvasGroup.DOFade(1, 0.5f);
+        }
+        else
+        {
+            _canvasGroup.DOFade(0, 0.5f);
+        }
 
 
+    }
+
+
+    private System.Collections.IEnumerator FadeIn()
+    {
+        _canvasGroup.alpha = 0f;
+        while (_canvasGroup.alpha < 1f)
+        {
+            _canvasGroup.alpha += Time.deltaTime * 2f; // 0.5s duration
+            yield return null;
+        }
+        _canvasGroup.alpha = 1f;
+    }
+
+    private System.Collections.IEnumerator FadeOut()
+    {
+        while (_canvasGroup.alpha > 0f)
+        {
+            _canvasGroup.alpha -= Time.deltaTime * 2f; // 0.5s duration
+            yield return null;
+        }
+        _canvasGroup.alpha = 0f;
+        _canvas.enabled = false;
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ActiveCanvas(!_canvas.enabled);
+        }
     }
 
 }

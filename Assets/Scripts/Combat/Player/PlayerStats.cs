@@ -23,8 +23,8 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
         CritMultiplier = 1.5f,
         Armor = 5f,
         Evasion = 0.05f,
-        LifeSteal = 0.2f,
-        LifeStealRate = 0.1f,
+        LifeSteal = 0.05f,
+        LifeStealRate = 0f,
         HpRegen = 1f
     };
 
