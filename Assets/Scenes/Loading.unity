@@ -1545,39 +1545,12 @@ MonoBehaviour:
       refreshRate: 60
     controlSettings:
       keyBindings:
-      - actionName: Move Forward
-        key: 119
+      - actionName: 
+        key: 0
         action: 0
-      - actionName: Move Backward
-        key: 115
-        action: 1
-      - actionName: Move Left
-        key: 97
-        action: 2
-      - actionName: Move Right
-        key: 100
-        action: 3
-      - actionName: Jump
-        key: 32
-        action: 4
-      - actionName: Sprint
-        key: 304
-        action: 5
-      - actionName: Light Attack
-        key: 323
-        action: 6
-      - actionName: Heavy Attack
-        key: 324
-        action: 7
-      - actionName: Skill 1
-        key: 106
-        action: 8
-      - actionName: Skill 2
-        key: 107
-        action: 9
-      - actionName: Skill 3
-        key: 51
-        action: 10
+      - actionName: 
+        key: 0
+        action: 0
 --- !u!4 &595183465
 Transform:
   m_ObjectHideFlags: 0
@@ -7424,6 +7397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7366bf375f7004cffa3fb46c678097bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  input: {fileID: 0}
 --- !u!1 &2115795529
 GameObject:
   m_ObjectHideFlags: 0

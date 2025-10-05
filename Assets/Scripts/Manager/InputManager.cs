@@ -1,10 +1,12 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-
+using UnityEngine.InputSystem;
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
+
+    public PlayerInput input;
 
     // Map KeyAction -> callback
     private Dictionary<KeyAction, Action> actionCallbacks = new();
@@ -31,7 +33,10 @@ public class InputManager : MonoBehaviour
         SettingManager.Instance.OnSettingsChanged += ReloadKeyMappings;
         ReloadKeyMappings();
     }
+    private void InitializePlayerInput()
+    {
 
+    }
     private void OnDestroy()
     {
         SettingManager.Instance.OnSettingsChanged -= ReloadKeyMappings;

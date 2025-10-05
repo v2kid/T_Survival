@@ -33,20 +33,7 @@ public class GraphicsSettings
 [System.Serializable]
 public class ControlSettings
 {
-    public KeyBinding[] keyBindings = new KeyBinding[]
-    {
-        new KeyBinding { actionName = "Move Forward", key = KeyCode.W , action = KeyAction.MoveForward },
-        new KeyBinding { actionName = "Move Backward", key = KeyCode.S  , action = KeyAction.MoveBackward },
-        new KeyBinding { actionName = "Move Left", key = KeyCode.A , action = KeyAction.MoveLeft },
-        new KeyBinding { actionName = "Move Right", key = KeyCode.D , action = KeyAction.MoveRight },
-        new KeyBinding { actionName = "Jump", key = KeyCode.Space , action = KeyAction.Jump },
-        new KeyBinding { actionName = "Sprint", key = KeyCode.LeftShift , action = KeyAction.Sprint },
-        new KeyBinding { actionName = "Light Attack", key = KeyCode.Mouse0 , action = KeyAction.LightAttack },
-        new KeyBinding { actionName = "Heavy Attack", key = KeyCode.Mouse1  , action = KeyAction.HeavyAttack },
-        new KeyBinding { actionName = "Skill 1", key = KeyCode.J   , action = KeyAction.Skill1 },
-        new KeyBinding { actionName = "Skill 2", key = KeyCode.K   , action = KeyAction.Skill2 },
-        new KeyBinding { actionName = "Skill 3", key = KeyCode.Alpha3   , action = KeyAction.Skill3 },
-    };
+    public KeyBinding[] keyBindings;
 
     public bool IsKeyBindingUsed(KeyCode key)
     {
@@ -56,6 +43,7 @@ public class ControlSettings
         }
         return false;
     }
+
 
 
     public void ApplySettings()
@@ -146,4 +134,22 @@ public class PlayerSetting
     public AudioSettings audioSettings;
     public GraphicsSettings graphicsSettings;
     public ControlSettings controlSettings;
+    public PlayerSetting()
+    {
+        audioSettings = new AudioSettings();
+        graphicsSettings = new GraphicsSettings();
+        controlSettings = new ControlSettings();
+        var n = new KeyBinding[]
+        {
+            // new KeyBinding { actionName = "Jump", key = KeyCode.Space, action = KeyAction.Jump },
+            // new KeyBinding { actionName = "Sprint", key = KeyCode.LeftShift, action = KeyAction.Sprint },
+            new KeyBinding { actionName = "Light Attack", key = KeyCode.Mouse0, action = KeyAction.LightAttack },
+            new KeyBinding { actionName = "Heavy Attack", key = KeyCode.Mouse1, action = KeyAction.HeavyAttack },
+            new KeyBinding { actionName = "Skill 1", key = KeyCode.J, action = KeyAction.Skill1 },
+            new KeyBinding { actionName = "Skill 2", key = KeyCode.K, action = KeyAction.Skill2 },
+            new KeyBinding { actionName = "Skill 3", key = KeyCode.Alpha3, action = KeyAction.Skill3 },
+
+        };
+        controlSettings.keyBindings = n;
+    }
 }
