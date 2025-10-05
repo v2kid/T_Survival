@@ -71,8 +71,8 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
 
     private void RegisterAllSkills()
     {
-        InputManager.Instance.RegisterKeyDown(Skill_1, () => UseSkill(Skill_1));
-        InputManager.Instance.RegisterKeyDown(Skill_2, () => UseSkill(Skill_2));
+        InputManager.Instance.RegisterKeyAction(KeyAction.Skill1, () => UseSkill(0));
+        InputManager.Instance.RegisterKeyAction(KeyAction.Skill2, () => UseSkill(1));
         for (int i = 0; i < AllSkills.Count; i++)
         {
             SkillID skillID = AllSkills[i];
@@ -104,22 +104,22 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
         }
     }
 
-    private void UseSkill(KeyCode key)
+    private void UseSkill(int index)
     {
-        int index = -1;
-        if (key == Skill_1) index = 0;
-        else if (key == Skill_2) index = 1;
-
-        if (index >= 0 && index < SkillInstances.Count)
+        if (index < 0 || index >= SkillInstances.Count)
         {
-            Skill_Base skill = SkillInstances[index];
-            if (skill.TryUse())
-            {
-            }
-            else
-            {
-            }
+            Debug.LogWarning($"Invalid skill index: {index}");
+            return;
         }
+
+        Skill_Base skill = SkillInstances[index];
+        if (skill.IsOnCooldown)
+        {
+            Debug.Log($"{skill.SkillData.skillName} is on cooldown.");
+            return;
+        }
+
+        skill.TryUse();
     }
     private void Awake()
     {

@@ -9987,6 +9987,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5328426917993201021, guid: 9b30b126ed18a16408026e14c8cdbf92,
         type: 3}
+      propertyPath: m_RendererIndex
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5328426917993201021, guid: 9b30b126ed18a16408026e14c8cdbf92,
+        type: 3}
       propertyPath: m_RenderPostProcessing
       value: 1
       objectReference: {fileID: 0}
@@ -13593,32 +13598,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   coin:
     _value: 0
-  coinDropChance:
-    _value: 0.1
-  maxHealth:
-    _value: 100
-  currentHealth:
-    _value: 100
-  moveSpeed:
-    _value: 5
-  meleeDamage:
-    _value: 10
-  attackSpeed: 1
-  attackRange: 1.5
-  critChance:
-    _value: 0
-  critMultiplier:
-    _value: 2
-  armor:
-    _value: 0
-  dodgeChance:
-    _value: 0
-  lifeSteal:
-    _value: 0
-  lifeStealRate:
-    _value: 0
-  hpRegen:
-    _value: 1
+  CurrentHP: 0
   AllSkills: 0000000002000000
 --- !u!114 &8910894964888130070
 MonoBehaviour:

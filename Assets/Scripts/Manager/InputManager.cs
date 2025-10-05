@@ -6,9 +6,13 @@ public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
 
-    private Dictionary<KeyCode, Action> keyDownActions = new();
-    // private Dictionary<KeyCode, Action> keyUpActions = new();
-    // private Dictionary<KeyCode, Action> keyHoldActions = new();
+    // Map KeyAction -> callback
+    private Dictionary<KeyAction, Action> actionCallbacks = new();
+
+    // Cache KeyAction -> KeyCode (đọc từ ControlSettings)
+    private Dictionary<KeyAction, KeyCode> keyMappings = new();
+
+    // private ControlSettings controlSettings;
 
     private void Awake()
     {
@@ -18,80 +22,72 @@ public class InputManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject); // giữ lại khi đổi scene
+        DontDestroyOnLoad(gameObject);
     }
 
+    private void Start()
+    {
+        // controlSettings = SettingManager.Instance.playerSetting.controlSettings;
+        SettingManager.Instance.OnSettingsChanged += ReloadKeyMappings;
+        ReloadKeyMappings();
+    }
+
+    private void OnDestroy()
+    {
+        SettingManager.Instance.OnSettingsChanged -= ReloadKeyMappings;
+    }
     private void Update()
     {
-        foreach (var kvp in keyDownActions)
+        foreach (var kvp in keyMappings)
         {
-            if (Input.GetKeyDown(kvp.Key))
-                kvp.Value?.Invoke();
+            if (Input.GetKeyDown(kvp.Value))
+            {
+                if (actionCallbacks.TryGetValue(kvp.Key, out var callback))
+                    callback?.Invoke();
+            }
         }
-
-        // foreach (var kvp in keyHoldActions)
-        // {
-        //     if (Input.GetKey(kvp.Key))
-        //         kvp.Value?.Invoke();
-        // }
-
-        // foreach (var kvp in keyUpActions)
-        // {
-        //     if (Input.GetKeyUp(kvp.Key))
-        //         kvp.Value?.Invoke();
-        // }
     }
 
     #region Register / Unregister
-    public void RegisterKeyDown(KeyCode key, Action action)
+    public void RegisterKeyAction(KeyAction action, Action callback)
     {
-        if (!keyDownActions.ContainsKey(key))
-            keyDownActions[key] = action;
+        if (!actionCallbacks.ContainsKey(action))
+            actionCallbacks[action] = callback;
         else
-            keyDownActions[key] += action;
+            actionCallbacks[action] += callback;
     }
 
-    // public void RegisterKeyUp(KeyCode key, Action action)
-    // {
-    //     if (!keyUpActions.ContainsKey(key))
-    //         keyUpActions[key] = action;
-    //     else
-    //         keyUpActions[key] += action;
-    // }
-
-    // public void RegisterKeyHold(KeyCode key, Action action)
-    // {
-    //     if (!keyHoldActions.ContainsKey(key))
-    //         keyHoldActions[key] = action;
-    //     else
-    //         keyHoldActions[key] += action;
-    // }
-
-    public void UnregisterKeyDown(KeyCode key)
+    public void UnregisterKeyAction(KeyAction action, Action callback)
     {
-        if (keyDownActions.ContainsKey(key))
-            if (keyDownActions[key] == null) keyDownActions.Remove(key);
+        if (actionCallbacks.ContainsKey(action))
+        {
+            actionCallbacks[action] -= callback;
+            if (actionCallbacks[action] == null)
+                actionCallbacks.Remove(action);
+        }
     }
-
-    // public void UnregisterKeyUp(KeyCode key, Action action)
-    // {
-    //     if (keyUpActions.ContainsKey(key))
-    //     {
-    //         keyUpActions[key] -= action;
-    //         if (keyUpActions[key] == null) keyUpActions.Remove(key);
-    //     }
-    // }
-
-    // public void UnregisterKeyHold(KeyCode key, Action action)
-    // {
-    //     if (keyHoldActions.ContainsKey(key))
-    //     {
-    //         keyHoldActions[key] -= action;
-    //         if (keyHoldActions[key] == null) keyHoldActions.Remove(key);
-    //     }
-    // }
     #endregion
+
+    #region Key Mapping Reload
+    // Cập nhật lại khi đổi keybinding
+    public void ReloadKeyMappings()
+    {
+        keyMappings.Clear();
+        ControlSettings controlSettings = SettingManager.Instance.playerSetting.controlSettings;
+        if (controlSettings == null) return;
+
+        foreach (var binding in controlSettings.keyBindings)
+        {
+            keyMappings[binding.action] = binding.key;
+        }
+    }
+    #endregion
+
+    // Helper: Lấy key hiện tại cho action
+    public KeyCode GetKeyForAction(KeyAction action)
+    {
+        if (keyMappings.TryGetValue(action, out var key))
+            return key;
+        return KeyCode.None;
+    }
 }
-
-
-

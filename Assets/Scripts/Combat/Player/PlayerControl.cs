@@ -40,38 +40,13 @@ public class PlayerControl : MonoBehaviour
     void Start()
     {
         playerStats = GetComponent<PlayerStats>();
+        InputManager.Instance.RegisterKeyAction(KeyAction.LightAttack, () => Attack(0));
+        InputManager.Instance.RegisterKeyAction(KeyAction.HeavyAttack, () => Attack(1));
     }
 
 
     // Update is called once per frame
-    void Update()
-    {
-        HandleInput();
-    }
 
-
-    void HandleInput()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Attack(0);
-        }
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            Attack(1);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            //play skill 1
-        }
-
-
-
-
-
-    }
 
     #region Attack, PerformAttack, Reset Attack, Change Target
 
