@@ -50,17 +50,17 @@ public class UIShop : MonoBehaviour
     private void HandleStatChanged()
     {
         var stats = PlayerStats.Instance;
-        CharacterStats baseStats = stats.Stats;
+        // CharacterStats baseStats = stats.Stats;
         CharacterStats modified = stats.ModifiedStats;
-
-        maxHealthText.text = TextHelper.FormatStat(StatType.Health, baseStats.MaxHealth, modified.MaxHealth);
-        hpRegen.text = TextHelper.FormatStat(StatType.Health, baseStats.HpRegen, modified.HpRegen);
-        damageText.text = TextHelper.FormatStat(StatType.Damage, baseStats.Damage, modified.Damage);
-        armor.text = TextHelper.FormatStat(StatType.Armor, baseStats.Armor, modified.Armor);
-        lifeSteal.text = TextHelper.FormatStat(StatType.LifeSteal, baseStats.LifeSteal, modified.LifeSteal);
-        lifeStealRate.text = TextHelper.FormatStat(StatType.LifeStealRate, baseStats.LifeStealRate, modified.LifeStealRate);
-        critChance.text = TextHelper.FormatStat(StatType.CritChance, baseStats.CritChance, modified.CritChance);
-        critMultiplier.text = TextHelper.FormatStat(StatType.CritDamage, baseStats.CritMultiplier, modified.CritMultiplier);
+        CharacterStats current = stats.CurrentStats;
+        maxHealthText.text = TextHelper.FormatStat(StatType.Health, current.MaxHealth, modified.MaxHealth);
+        hpRegen.text = TextHelper.FormatStat(StatType.Health, current.HpRegen, modified.HpRegen);
+        damageText.text = TextHelper.FormatStat(StatType.Damage, current.Damage, modified.Damage);
+        armor.text = TextHelper.FormatStat(StatType.Armor, current.Armor, modified.Armor);
+        lifeSteal.text = TextHelper.FormatStat(StatType.LifeSteal, current.LifeSteal, modified.LifeSteal);
+        lifeStealRate.text = TextHelper.FormatStat(StatType.LifeStealRate, current.LifeStealRate, modified.LifeStealRate);
+        critChance.text = TextHelper.FormatStat(StatType.CritChance, current.CritChance, modified.CritChance);
+        critMultiplier.text = TextHelper.FormatStat(StatType.CritDamage, current.CritMultiplier, modified.CritMultiplier);
     }
 
 
@@ -75,39 +75,52 @@ public class UIShop : MonoBehaviour
     }
     private void Reroll()
     {
-        // clear slot cũ
-        currentSlots.Clear();
-        foreach (Transform child in upgradeSlotParent)
+        //check coin
+        if (PlayerStats.Instance.Coin.Value < 2)
         {
-            Destroy(child.gameObject);
+            return;
         }
-
-        // pick random 3 option
-        for (int i = 0; i < 3; i++)
+        else
         {
-            var statType = PickRandomStatType();
-            var rarity = PickRandomRarity();
-
-            var config = statUpgradeConfig.GetConfig(statType, rarity);
-
-            if (config != null)
+            PlayerStats.Instance.Coin.Value -= 2;
+            currentSlots.Clear();
+            foreach (Transform child in upgradeSlotParent)
             {
-                var slot = Instantiate(UpgradeSlotPrefab, upgradeSlotParent);
-                slot.Setup(config, statType);
-                slot.OnUpgradeClicked += (stat, value) =>
+                Destroy(child.gameObject);
+            }
+
+            // pick random 3 option
+            for (int i = 0; i < 3; i++)
+            {
+                var statType = PickRandomStatType();
+                var rarity = PickRandomRarity();
+                var config = statUpgradeConfig.GetConfig(statType, rarity);
+
+                if (config != null)
                 {
-                    OnUpgradeClicked(stat, value);
-                    Destroy(slot.gameObject);
-                };
-                currentSlots.Add(slot);
+                    UIUpgradeSlot slot = Instantiate(UpgradeSlotPrefab, upgradeSlotParent);
+                    slot.Setup(config, statType);
+                    slot.OnUpgradeClicked += OnUpgradeClicked;
+                    currentSlots.Add(slot);
+                }
             }
         }
     }
 
-    private void OnUpgradeClicked(StatType statType, float value)
-    {
-        PlayerStats.Instance.ChangeStat(statType, value);
 
+    private void OnUpgradeClicked(UIUpgradeSlot s)
+    {
+        if (PlayerStats.Instance.Coin.Value < s._statRarityConfig.cost)
+        {
+            return;
+        }
+        else
+        {
+            PlayerStats.Instance.ChangeStat(s.type, s._statRarityConfig.value);
+            PlayerStats.Instance.Coin.Value -= s._statRarityConfig.cost;
+            currentSlots.Remove(s);
+            Destroy(s.gameObject);
+        }
     }
 
     private Rarity PickRandomRarity()
@@ -130,6 +143,7 @@ public class UIShop : MonoBehaviour
         if (active)
         {
             _canvasGroup.DOFade(1, 0.5f);
+            Reroll();
         }
         else
         {

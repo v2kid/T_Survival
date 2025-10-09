@@ -11,6 +11,7 @@ public class EnemySO : ScriptableObject
     public float meleeDamage;
     public float attackRange;
     public float attackSpeed;
+    public int coinDrop;
 }
 
 

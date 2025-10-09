@@ -1954,7 +1954,7 @@ Animator:
   m_GameObject: {fileID: 8153249681440862843}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: c3543ee10a04bd340b8a8787af6d367d, type: 3}
-  m_Controller: {fileID: 9100000, guid: b6c402371562146d3ab8e68cb8b25639, type: 2}
+  m_Controller: {fileID: 22100000, guid: 3b29037ef0a7a4af1813a7f0b1a4cea8, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -2031,7 +2031,6 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 849cd2e131b804f4c9c33dfe2e1e1006, type: 2}
   playerStats: {fileID: 0}
   _renderer: {fileID: 1881096517072812430}
-  _attackPos: {fileID: 137266117889478145}
   animator: {fileID: 0}
 --- !u!1 &8223639086256869184
 GameObject:

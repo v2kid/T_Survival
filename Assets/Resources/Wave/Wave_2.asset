@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemies:
   - enemyData: {fileID: 11400000, guid: d73b7f2e14b884c0e819ab2a97451ac3, type: 2}
-    enemyCount: 10
+    enemyCount: 5
     spawnRate: 2
     startDelay: 1
   - enemyData: {fileID: 11400000, guid: d73b7f2e14b884c0e819ab2a97451ac3, type: 2}
-    enemyCount: 20
+    enemyCount: 10
     spawnRate: 2
     startDelay: 6

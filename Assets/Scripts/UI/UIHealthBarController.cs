@@ -62,7 +62,7 @@ public class UIHealthBarController : MonoBehaviour
                 continue;
             }
 
-            Vector3 worldPos = healthBarData.target.position + Vector3.up * 2f;
+            Vector3 worldPos = healthBarData.target.position + Vector3.up * healthBarData.heightOffset;
             Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
 
             // Check if position is valid and in front of camera
@@ -93,16 +93,16 @@ public class UIHealthBarController : MonoBehaviour
             }
         }
     }
-    public UIHealthBar RegisterHealthBar(Transform target, float maxHealth)
+    public UIHealthBar RegisterHealthBar(Transform target, float maxHealth, float heightOffset = 2f)
     {
         UIHealthBar healthBar = GetFromPool();
         healthBar.SetHealth(maxHealth, maxHealth);
         Global.Utilities.WaitAfter(0.1f, () =>
         {
             healthBar.gameObject.SetActive(true);
-            });
+        });
 
-        activeHealthBars.Add(new HealthBarData { target = target, healthBar = healthBar });
+        activeHealthBars.Add(new HealthBarData { target = target, healthBar = healthBar, heightOffset = heightOffset });
         return healthBar;
     }
 
@@ -151,11 +151,12 @@ public struct HealthBarData
 {
     public Transform target;
     public UIHealthBar healthBar;
+    public float heightOffset;
 }
 
 public interface IHealthBar
 {
-    public void RegisterHealthBar(Transform target, float maxHealth);
+    public void RegisterHealthBar(Transform target, float maxHealth, float heightOffset = 2f);
     public void SetHealth(float health, float maxHealth);
     public void UnregisterHealthBar();
 }

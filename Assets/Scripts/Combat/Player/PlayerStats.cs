@@ -12,7 +12,6 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
 
     public CharacterStats Stats = new CharacterStats()
     {
-        CoinDropChance = 0.1f,
         MaxHealth = 100f,
         CurrentHealth = 100f,
         MoveSpeed = 5f,
@@ -24,7 +23,7 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
         Armor = 5f,
         Evasion = 0.05f,
         LifeSteal = 0.05f,
-        LifeStealRate = 0f,
+        LifeStealRate = 0.1f,
         HpRegen = 1f
     };
 
@@ -36,7 +35,6 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
         {
             return new CharacterStats()
             {
-                CoinDropChance = Stats.CoinDropChance + ModifiedStats.CoinDropChance,
                 MaxHealth = Stats.MaxHealth + ModifiedStats.MaxHealth,
                 CurrentHealth = Stats.CurrentHealth, // current health is managed separately
                 MoveSpeed = Stats.MoveSpeed + ModifiedStats.MoveSpeed,
@@ -134,7 +132,7 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
 
     private void Start()
     {
-        RegisterHealthBar(transform, CurrentStats.MaxHealth);
+        RegisterHealthBar(transform, CurrentStats.MaxHealth, 2f);
         CurrentHP = CurrentStats.CurrentHealth;
         RegisterAllSkills();
         OnDataInit?.Invoke();
@@ -151,9 +149,9 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
         UpdateSkillCooldowns(Time.deltaTime);
     }
 
-    public void RegisterHealthBar(Transform target, float maxHealth)
+    public void RegisterHealthBar(Transform target, float maxHealth, float heightOffset)
     {
-        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(target, maxHealth);
+        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(target, maxHealth, heightOffset);
     }
 
     public void SetHealth(float health, float maxHealth)
@@ -237,7 +235,7 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
             return;
         }
 
-        CurrentHP -= result.FinalDamage;
+        CurrentHP -= Mathf.Max(result.FinalDamage, 0);
         // CurrentHealth.Value = Mathf.Max(CurrentHealth.Value, 0);
 
         SetHealth(CurrentHP, CurrentStats.MaxHealth);
@@ -294,9 +292,9 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
     }
 
 }
+[System.Serializable]
 public struct CharacterStats
 {
-    public float CoinDropChance;
     public float MaxHealth;
     public float CurrentHealth;
     public float MoveSpeed;

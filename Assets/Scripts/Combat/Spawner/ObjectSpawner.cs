@@ -56,15 +56,17 @@ public class ObjectSpawner : MonoBehaviour
         Destroy(coin);
     }
 
-    public void SpawnCoin(Vector3 position)
+    public void SpawnCoin(Vector3 position, int value)
     {
         var coin = coinPool.Get();
         coin.transform.position = position;
-        CoinManager.Instance?.RegisterCoin(coin);
+        CoinManager.Instance?.RegisterCoin(coin, value);
     }
 
     public void ReleaseCoin(GameObject coin)
     {
         coinPool.Release(coin);
     }
+
+
 }

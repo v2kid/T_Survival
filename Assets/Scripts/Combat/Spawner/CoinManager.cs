@@ -19,6 +19,7 @@ public class CoinManager : MonoBehaviour
         public GameObject coinObject;
         public float spawnTime;
         public bool isMagnetActive;
+        public int value;
     }
 
     private void Awake()
@@ -69,7 +70,7 @@ public class CoinManager : MonoBehaviour
                 // Check pickup distance
                 if (Vector3.Distance(coinPos, playerPos) <= pickupDistance)
                 {
-                    PlayerStats.Instance.Coin.Value += 1; // Increment coin count
+                    PlayerStats.Instance.Coin.Value += coinData.value;
                     activeCoins.RemoveAt(i);
                     ObjectSpawner.Instance.ReleaseCoin(coinData.coinObject);
                 }
@@ -77,7 +78,7 @@ public class CoinManager : MonoBehaviour
         }
     }
 
-    public void RegisterCoin(GameObject coin)
+    public void RegisterCoin(GameObject coin, int value)
     {
         if (activeCoins.Count >= maxActiveCoins)
             return;
@@ -93,7 +94,8 @@ public class CoinManager : MonoBehaviour
         {
             coinObject = coin,
             spawnTime = Time.time,
-            isMagnetActive = false
+            isMagnetActive = false,
+            value = value
         });
     }
 
@@ -109,3 +111,4 @@ public class CoinManager : MonoBehaviour
         }
     }
 }
+

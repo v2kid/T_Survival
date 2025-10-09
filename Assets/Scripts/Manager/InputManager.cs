@@ -8,13 +8,10 @@ public class InputManager : MonoBehaviour
 
     public PlayerInput input;
 
-    // Map KeyAction -> callback
     private Dictionary<KeyAction, Action> actionCallbacks = new();
 
-    // Cache KeyAction -> KeyCode (đọc từ ControlSettings)
     private Dictionary<KeyAction, KeyCode> keyMappings = new();
 
-    // private ControlSettings controlSettings;
 
     private void Awake()
     {

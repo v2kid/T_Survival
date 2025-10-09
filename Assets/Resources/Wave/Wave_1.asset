@@ -13,11 +13,15 @@ MonoBehaviour:
   m_Name: Wave_1
   m_EditorClassIdentifier: 
   enemies:
-  - enemyData: {fileID: 11400000, guid: d73b7f2e14b884c0e819ab2a97451ac3, type: 2}
-    enemyCount: 10
+  - enemyData: {fileID: 11400000, guid: d7403f677ede2468fa6de4613ceafda8, type: 2}
+    enemyCount: 5
     spawnRate: 2
     startDelay: 1
   - enemyData: {fileID: 11400000, guid: d73b7f2e14b884c0e819ab2a97451ac3, type: 2}
-    enemyCount: 20
+    enemyCount: 1
     spawnRate: 2
     startDelay: 6
+  - enemyData: {fileID: 11400000, guid: d7403f677ede2468fa6de4613ceafda8, type: 2}
+    enemyCount: 1
+    spawnRate: 2
+    startDelay: 12

@@ -15,7 +15,7 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
     [Header("State Machine")]
     private Dictionary<EnemyStateID, EnemyState> states = new Dictionary<EnemyStateID, EnemyState>();
     private List<GlobalTransition> globalTransitions = new List<GlobalTransition>();
-    protected EnemyState currentState;
+    public EnemyState currentState;
     public Animator animator;
 
     public bool IsDead => enemyStat?.currentHealth <= 0;
@@ -38,7 +38,7 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
         {
             enemyStat = new EnemyStat(enemyData);
         }
-        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(transform, enemyStat.maxHealth);
+        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(transform, enemyStat.maxHealth, 1.5f);
         if (_renderer != null)
             _renderer.material = new Material(_renderer.material);
     }
@@ -154,9 +154,9 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
         return distance <= enemyStat.attackRange;
     }
 
-    public void RegisterHealthBar(Transform target, float maxHealth)
+    public void RegisterHealthBar(Transform target, float maxHealth, float heightOffset)
     {
-        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(target, maxHealth);
+        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(target, maxHealth, heightOffset);
     }
 
     public void UnregisterHealthBar()
@@ -175,6 +175,7 @@ public class EnemyStat
     public float moveSpeed;
     public float attackRange;
     public float attackRate;
+
 
     public EnemyStat(EnemySO enemyData)
     {

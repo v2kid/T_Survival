@@ -8,29 +8,27 @@ public class UIUpgradeSlot : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI valueText;
     [SerializeField] private TMPro.TextMeshProUGUI cost;
     [SerializeField] private Button upgradeButton;
-    public event Action<StatType, float> OnUpgradeClicked;
+    public event Action<UIUpgradeSlot> OnUpgradeClicked;
 
-    private StatType _statType;
-    private Rarity _rarity;
-    private float _value;
+    public StatRarityConfig _statRarityConfig;
+    public StatType type;
 
     public void Setup(StatRarityConfig statRarityConfig, StatType statType)
     {
-        _statType = statType;
-        _rarity = statRarityConfig.rarity;
-        cost.text = statRarityConfig.cost.ToString();
-        GameDataManager.Instance.GetRarityColor(_rarity, out Color color);
+        _statRarityConfig = statRarityConfig;
+        cost.text = _statRarityConfig.cost.ToString();
+        GameDataManager.Instance.GetRarityColor(_statRarityConfig.rarity, out Color color);
         statTypeText.color = color;
-        statTypeText.text = _statType.ToString();
-        valueText.text = TextHelper.FormatStat(_statType, statRarityConfig.value);
-        _value = statRarityConfig.value;
+        statTypeText.text = statType.ToString();
+        type = statType;
+        valueText.text = TextHelper.FormatStat(statType, _statRarityConfig.value);
         upgradeButton.onClick.RemoveAllListeners();
         upgradeButton.onClick.AddListener(OnClick);
 
     }
     private void OnClick()
     {
-        OnUpgradeClicked?.Invoke(_statType, _value);
+        OnUpgradeClicked?.Invoke(this);
         upgradeButton.interactable = false;
         OnUpgradeClicked = null;
     }

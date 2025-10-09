@@ -10,12 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad210fc9ea99f41c6b54cadaa83a0e7f, type: 3}
-  m_Name: EnemySO
+  m_Name: Zombie_haft_body
   m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 4730917924358220622, guid: 1dbcfdaa18f494511a17028b87d01cea,
+    type: 3}
   enemyID: 0
-  enemyName: zom
-  maxHealth: 100
+  enemyName: haft_body
+  maxHealth: 40
   moveSpeed: 1.5
-  meleeDamage: 6
+  meleeDamage: 5
   attackRange: 1
-  attackSpeed: 1.5
+  attackSpeed: 1
+  coinDrop: 3

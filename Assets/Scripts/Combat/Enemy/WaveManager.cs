@@ -24,12 +24,13 @@ public class WaveManager : MonoBehaviour
     public List<EnemyWaveSO> waves;           // danh sách wave
     public int currentWaveIndex = 0;
 
-    public int aliveEnemies = 0;             // số enemy còn sống
+    public ObservableValue<int> aliveEnemies = new(0); // số lượng enemy còn sống
 
     public static event Action<int> OnWaveStarted;   // int = wave index
     public static event Action OnWaveCleared;   // int = wave index
 
     private bool isSpawningWave = false;
+
 
     private void Start()
     {
@@ -48,7 +49,7 @@ public class WaveManager : MonoBehaviour
     private IEnumerator SpawnWave(EnemyWaveSO wave)
     {
         isSpawningWave = true;
-        aliveEnemies = 0;
+        aliveEnemies.Value = 0;
 
         OnWaveStarted?.Invoke(currentWaveIndex);
 
@@ -66,6 +67,29 @@ public class WaveManager : MonoBehaviour
         isSpawningWave = false;
     }
 
+    // private void SpawnEnemy(EnemyEntry entry)
+    // {
+    //     if (spawnPoints.Count == 0) return;
+
+    //     Transform spawnPoint = spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Count)];
+    //     EnemyBase enemyObj = Instantiate(entry.enemyData.enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+    //     enemyObj.Initialize(entry.enemyData, playerStats);
+
+    //     aliveEnemies.Value++;
+    //     enemyObj.OnDie += HandleEnemyDeath;
+    // }
+
+
+    // private void HandleEnemyDeath()
+    // {
+    //     aliveEnemies.Value--;
+    //     if (aliveEnemies.Value <= 0 && !isSpawningWave)
+    //     {
+    //         OnWaveCleared?.Invoke();
+    //         currentWaveIndex++;
+    //     }
+    // }
+    // ...existing code...
     private void SpawnEnemy(EnemyEntry entry)
     {
         if (spawnPoints.Count == 0) return;
@@ -74,17 +98,21 @@ public class WaveManager : MonoBehaviour
         EnemyBase enemyObj = Instantiate(entry.enemyData.enemyPrefab, spawnPoint.position, spawnPoint.rotation);
         enemyObj.Initialize(entry.enemyData, playerStats);
 
-        aliveEnemies++;
+        aliveEnemies.Value++;
         enemyObj.OnDie += HandleEnemyDeath;
+
+        // Register enemy on radar
+        Radar.Instance?.RegisterEnemy(enemyObj.transform);
     }
 
     private void HandleEnemyDeath()
     {
-        aliveEnemies--;
-        if (aliveEnemies <= 0 && !isSpawningWave)
+        aliveEnemies.Value--;
+        if (aliveEnemies.Value <= 0 && !isSpawningWave)
         {
             OnWaveCleared?.Invoke();
             currentWaveIndex++;
         }
     }
+    // ...existing code...
 }

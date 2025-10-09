@@ -78,7 +78,7 @@ public class TargetDetectionControl : MonoBehaviour
     {
         nearbyEnemies.Clear();
         Collider[] hits = Physics.OverlapSphere(transform.position, detectionRange, whatIsEnemy);
-        
+
         foreach (Collider hit in hits)
         {
             EnemyBase enemy = hit.GetComponent<EnemyBase>();
@@ -116,7 +116,7 @@ public class TargetDetectionControl : MonoBehaviour
     {
         Vector3 toEnemy = enemy.position - transform.position;
         float distance = toEnemy.magnitude;
-        
+
         // Base score inversely proportional to distance
         float score = 1f - (distance / detectionRange);
 
@@ -125,7 +125,7 @@ public class TargetDetectionControl : MonoBehaviour
             // When player has input, prioritize enemies in input direction
             toEnemy.y = 0;
             toEnemy.Normalize();
-            
+
             float angle = Vector3.Angle(inputDirection, toEnemy);
             if (angle <= targetingAngle)
             {
@@ -145,7 +145,7 @@ public class TargetDetectionControl : MonoBehaviour
             forward.y = 0;
             toEnemy.y = 0;
             toEnemy.Normalize();
-            
+
             float dot = Vector3.Dot(forward, toEnemy);
             if (dot > 0) score += dot * 0.5f;
         }
@@ -156,7 +156,7 @@ public class TargetDetectionControl : MonoBehaviour
     bool IsTargetValid(Transform target)
     {
         if (target == null || !target.gameObject.activeInHierarchy) return false;
-        
+        if (target.GetComponent<EnemyBase>() == null || target.GetComponent<EnemyBase>().IsDead) return false;
         float distance = Vector3.Distance(transform.position, target.position);
         return distance <= detectionRange;
     }
@@ -234,7 +234,7 @@ public class TargetDetectionControl : MonoBehaviour
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawRay(transform.position, inputDir * 3f);
-            
+
             // Targeting cone
             Gizmos.color = Color.cyan;
             Vector3 leftBound = Quaternion.AngleAxis(-targetingAngle, Vector3.up) * inputDir;

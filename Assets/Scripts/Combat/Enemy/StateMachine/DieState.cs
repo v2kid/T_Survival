@@ -7,7 +7,7 @@ public class DieState : EnemyState
     {
         enemy.animator.SetTrigger("Dead");
         enemy.UnregisterHealthBar();
-        ObjectSpawner.Instance.SpawnCoin(enemy.transform.position +Vector3.up);
+        ObjectSpawner.Instance.SpawnCoin(enemy.transform.position + Vector3.up, enemy.enemyData.coinDrop);
 
     }
 

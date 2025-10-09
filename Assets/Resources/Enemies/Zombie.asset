@@ -16,8 +16,9 @@ MonoBehaviour:
     type: 3}
   enemyID: 0
   enemyName: Dummy
-  maxHealth: 100
+  maxHealth: 70
   moveSpeed: 1
-  meleeDamage: 6
+  meleeDamage: 8
   attackRange: 1
   attackSpeed: 1
+  coinDrop: 5
