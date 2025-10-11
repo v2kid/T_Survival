@@ -8,6 +8,7 @@ public class AbilitiesSO : ScriptableObject
     public Sprite skillIcon;
     public string skillName;
     public float cooldown;
+    public int UpgradeCost;
 }
 public enum SkillID
 {

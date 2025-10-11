@@ -79,35 +79,53 @@ public class Radar : MonoBehaviour
     {
         if (player == null || radarRect == null) return;
 
-        // Clear old enemy icons
-        foreach (var icon in enemyIcons)
+        // Clean up null/destroyed enemies and their corresponding icons
+        for (int i = registeredEnemies.Count - 1; i >= 0; i--)
         {
-            if (icon != null) Destroy(icon);
+            if (registeredEnemies[i] == null)
+            {
+                if (i < enemyIcons.Count && enemyIcons[i] != null)
+                {
+                    Destroy(enemyIcons[i]);
+                    enemyIcons.RemoveAt(i);
+                }
+                registeredEnemies.RemoveAt(i);
+            }
         }
-        enemyIcons.Clear();
 
-        // Clean up null/destroyed enemies
-        registeredEnemies.RemoveAll(enemy => enemy == null);
-
-        // Create enemy icons
-        foreach (var enemy in registeredEnemies)
+        // Ensure we have icons for all enemies
+        while (enemyIcons.Count < registeredEnemies.Count)
         {
-            if (enemy == null) continue;
+            GameObject icon = Instantiate(enemyIconPrefab, radarRect);
+            enemyIcons.Add(icon);
+        }
+
+        // Update icon positions
+        for (int i = 0; i < registeredEnemies.Count; i++)
+        {
+            var enemy = registeredEnemies[i];
+            if (enemy == null || i >= enemyIcons.Count) continue;
 
             Vector3 offset = enemy.position - player.position;
             float distance = offset.magnitude;
 
-            // Skip if out of radar range
-            if (distance > radarRange) continue;
+            // Hide icon if out of range, show if in range
+            if (distance > radarRange)
+            {
+                enemyIcons[i].SetActive(false);
+            }
+            else
+            {
+                enemyIcons[i].SetActive(true);
 
-            // Convert world position to radar position
-            float radarX = (offset.x / radarRange) * (radarRect.rect.width / 2f);
-            float radarY = (offset.z / radarRange) * (radarRect.rect.height / 2f);
+                // Convert world position to radar position
+                float radarX = (offset.x / radarRange) * (radarRect.rect.width / 2f);
+                float radarY = (offset.z / radarRange) * (radarRect.rect.height / 2f);
 
-            // Create enemy icon
-            GameObject icon = Instantiate(enemyIconPrefab, radarRect);
-            icon.GetComponent<RectTransform>().anchoredPosition = new Vector2(radarX, radarY);
-            enemyIcons.Add(icon);
+                // Update position
+                RectTransform iconRect = enemyIcons[i].GetComponent<RectTransform>();
+                iconRect.anchoredPosition = new Vector2(radarX, radarY);
+            }
         }
     }
 

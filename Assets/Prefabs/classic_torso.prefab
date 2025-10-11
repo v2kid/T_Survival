@@ -554,7 +554,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: d73b7f2e14b884c0e819ab2a97451ac3, type: 2}
   playerStats: {fileID: 0}
-  _renderer: {fileID: 2593120220940838703}
+  _renderer:
+  - {fileID: 2593120220940838703}
+  - {fileID: 727232555066218540}
   animator: {fileID: 4648814799281015488}
 --- !u!54 &405553768950162699
 Rigidbody:

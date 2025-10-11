@@ -8,6 +8,8 @@ public static class SkillFactory
                 return new Healing_Totem(skillData);
             case SkillID.Shuriken:
                 return new Shuriken_Fan(skillData);
+            case SkillID.Fox_Sagen:
+                return new Fox_Sagent(skillData);
             default:
                 return null;
         }

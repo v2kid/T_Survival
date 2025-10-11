@@ -71,6 +71,8 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
     {
         InputManager.Instance.RegisterKeyAction(KeyAction.Skill1, () => UseSkill(0));
         InputManager.Instance.RegisterKeyAction(KeyAction.Skill2, () => UseSkill(1));
+        InputManager.Instance.RegisterKeyAction(KeyAction.Skill3, () => UseSkill(2));
+
         for (int i = 0; i < AllSkills.Count; i++)
         {
             SkillID skillID = AllSkills[i];

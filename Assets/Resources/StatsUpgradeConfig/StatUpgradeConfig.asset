@@ -45,16 +45,16 @@ MonoBehaviour:
     rarityConfigs:
     - rarity: 0
       cost: 1
-      value: 10
+      value: 4
     - rarity: 1
       cost: 2
-      value: 25
+      value: 10
     - rarity: 2
       cost: 3
-      value: 30
+      value: 15
     - rarity: 3
       cost: 4
-      value: 50
+      value: 20
   - statType: 3
     rarityConfigs:
     - rarity: 0

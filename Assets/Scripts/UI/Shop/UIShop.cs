@@ -25,6 +25,12 @@ public class UIShop : MonoBehaviour
     [SerializeField] private Transform upgradeSlotParent;
     [SerializeField] private Button RerollButton;
 
+
+    //skill area
+    [SerializeField] private Transform skillSlotParent;
+    [SerializeField] private UISkillUpgradeSlot skillSlotPrefab;
+
+
     //cach slots 
     private List<UIUpgradeSlot> currentSlots = new();
     private System.Random rng = new System.Random();
@@ -44,6 +50,8 @@ public class UIShop : MonoBehaviour
             GameplayManager.Instance.StartGame();
         });
         RerollButton.onClick.AddListener(Reroll);
+        // InitializeSkills();
+        Global.Utilities.WaitAfter(0.1f, InitializeSkills);
         Reroll();
     }
 
@@ -154,26 +162,23 @@ public class UIShop : MonoBehaviour
     }
 
 
-    private System.Collections.IEnumerator FadeIn()
+    private void InitializeSkills()
     {
-        _canvasGroup.alpha = 0f;
-        while (_canvasGroup.alpha < 1f)
+        for (int i = 0; i < PlayerStats.Instance.SkillInstances.Count; i++)
         {
-            _canvasGroup.alpha += Time.deltaTime * 2f; // 0.5s duration
-            yield return null;
+            SkillID skillID = PlayerStats.Instance.AllSkills[i];
+            Skill_Base skillInstance = PlayerStats.Instance.SkillInstances[i];
+            AbilitiesSO skillData = GameDataManager.Instance.AllSkills.Find(s => s.skillID == skillID);
+            if (skillData != null)
+            {
+                UISkillUpgradeSlot skillSlot = Instantiate(skillSlotPrefab, skillSlotParent);
+                skillSlot.Initialize(skillInstance);
+            }
+            else
+            {
+                Debug.LogWarning($"Skill data not found for {skillID}");
+            }
         }
-        _canvasGroup.alpha = 1f;
-    }
-
-    private System.Collections.IEnumerator FadeOut()
-    {
-        while (_canvasGroup.alpha > 0f)
-        {
-            _canvasGroup.alpha -= Time.deltaTime * 2f; // 0.5s duration
-            yield return null;
-        }
-        _canvasGroup.alpha = 0f;
-        _canvas.enabled = false;
     }
     private void Update()
     {

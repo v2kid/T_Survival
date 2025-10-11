@@ -1,71 +1,108 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class HealingArea : MonoBehaviour, IAreaEffect
 {
-    private float healingAmount = 5;
-    private float healingInterval;
-    private float activationDelay;
-    private float existingDuration;
-    private float healingRadius = 1.6f;
-
+    [Header("Healing Settings")]
+    public float healingRadius = 1.6f;
     public LayerMask playerLayer;
 
-    private bool isActive = false;
-    private bool isEffectRunning = true;
-    private float timer = 0f;
+    private List<EffectInstance> effectInstances = new List<EffectInstance>();
+    private bool isEffectRunning = false;
 
-    public bool IsRunning => isEffectRunning;
+    public bool IsRunning => isEffectRunning && effectInstances.Count > 0;
 
-    public void Initialize(AreaEffectConfig config)
+
+
+    public void Initialize(AreaEffectConfig[] configs)
     {
-        healingInterval = config.interval;
-        activationDelay = config.activationDelay;
-        existingDuration = config.duration;
+        effectInstances.Clear();
 
-        isActive = false;
+        foreach (var config in configs)
+        {
+            effectInstances.Add(new EffectInstance(config));
+        }
+
         isEffectRunning = true;
-        timer = 0f;
-    }
-
-    public void RestartEffect(AreaEffectConfig config)
-    {
-        Initialize(config);
     }
 
     public void Stop()
     {
         isEffectRunning = false;
-        isActive = false;
+        effectInstances.Clear();
     }
 
     private void Update()
     {
         if (!isEffectRunning) return;
 
-        // Wait for activation delay
-        if (!isActive)
+        bool anyEffectActive = false;
+
+        for (int i = effectInstances.Count - 1; i >= 0; i--)
         {
-            activationDelay -= Time.deltaTime;
-            if (activationDelay <= 0f)
-                isActive = true;
-            return;
+            var effect = effectInstances[i];
+
+            if (effect.isFinished) continue;
+
+            // Handle activation delay
+            if (!effect.isActive)
+            {
+                effect.remainingActivationDelay -= Time.deltaTime;
+                if (effect.remainingActivationDelay <= 0f)
+                {
+                    effect.isActive = true;
+
+                    // For OneShot, heal immediately and mark as finished
+                    if (effect.config.IsOneShot)
+                    {
+                        CheckAndHealPlayer(effect.config.damage);
+                        effect.isFinished = true;
+                        continue;
+                    }
+                }
+                else
+                {
+                    anyEffectActive = true;
+                    continue;
+                }
+            }
+
+            // Handle continuous effects
+            if (effect.config.IsContinuous && effect.isActive)
+            {
+                effect.timer += Time.deltaTime;
+                effect.remainingDuration -= Time.deltaTime;
+
+                // Heal at intervals
+                if (effect.timer >= effect.config.interval)
+                {
+                    effect.timer = 0f;
+                    CheckAndHealPlayer(effect.config.damage);
+                }
+
+                // Check if duration expired
+                if (effect.remainingDuration <= 0f)
+                {
+                    effect.isFinished = true;
+                }
+                else
+                {
+                    anyEffectActive = true;
+                }
+            }
         }
 
-        timer += Time.deltaTime;
-        existingDuration -= Time.deltaTime;
+        // Remove finished effects
+        effectInstances.RemoveAll(e => e.isFinished);
 
-        if (timer >= healingInterval)
-        {
-            timer = 0f;
-            CheckAndHealPlayer();
-        }
-        if (existingDuration <= 0f)
+        // Stop if no effects are running
+        if (!anyEffectActive && effectInstances.Count == 0)
         {
             Stop();
         }
     }
 
-    private void CheckAndHealPlayer()
+    private void CheckAndHealPlayer(float amount)
     {
         if (PlayerStats.Instance != null)
         {
@@ -73,7 +110,7 @@ public class HealingArea : MonoBehaviour, IAreaEffect
 
             if (distanceToPlayer <= healingRadius)
             {
-                PlayerStats.Instance.Heal(healingAmount);
+                PlayerStats.Instance.Heal(amount);
             }
         }
     }

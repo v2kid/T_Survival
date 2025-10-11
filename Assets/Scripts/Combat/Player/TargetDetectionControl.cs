@@ -212,6 +212,24 @@ public class TargetDetectionControl : MonoBehaviour
         return new List<Transform>(nearbyEnemies);
     }
 
+
+    //get closest enemy
+    public Transform GetClosestEnemy()
+    {
+        Transform closest = null;
+        float minDist = Mathf.Infinity;
+        foreach (Transform enemy in nearbyEnemies)
+        {
+            float dist = Vector3.Distance(transform.position, enemy.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = enemy;
+            }
+        }
+        return closest;
+    }
+
     #endregion
 
     void OnDrawGizmosSelected()

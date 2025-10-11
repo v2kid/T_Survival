@@ -2030,7 +2030,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: 849cd2e131b804f4c9c33dfe2e1e1006, type: 2}
   playerStats: {fileID: 0}
-  _renderer: {fileID: 1881096517072812430}
+  _renderer:
+  - {fileID: 1881096517072812430}
   animator: {fileID: 0}
 --- !u!1 &8223639086256869184
 GameObject:

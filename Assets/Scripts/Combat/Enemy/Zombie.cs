@@ -20,8 +20,13 @@ public class Zombie : EnemyBase
         {
             elapsed += Time.deltaTime;
             float dissolveAmount = Mathf.Clamp01(elapsed / dissolveDuration);
-            if (_renderer != null)
-                _renderer.material.SetFloat("_DissolveAmount", dissolveAmount);
+            if (_renderer.Count > 0)
+            {
+                foreach (var rend in _renderer)
+                {
+                    rend.material.SetFloat("_DissolveAmount", dissolveAmount);
+                }
+            }
             yield return null;
         }
     }

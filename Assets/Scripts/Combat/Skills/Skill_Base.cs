@@ -5,6 +5,8 @@ public abstract class Skill_Base : ISkill
     public virtual bool IsOnCooldown => CooldownTimer.Value > 0f;
     public ObservableValue<float> CooldownTimer { get; private set; }
 
+    public ObservableValue<int> SkillLevel { get; private set; } = new ObservableValue<int>(1);
+
     protected Skill_Base(AbilitiesSO skillData)
     {
         SkillData = skillData;
@@ -50,6 +52,12 @@ public abstract class Skill_Base : ISkill
 
     }
 
+    //upgrade skill level
+    public void UpgradeSkill()
+    {
+        SkillLevel.Value++;
+    }
+
 
 }
 
@@ -63,4 +71,5 @@ public interface ISkill
     bool TryUse();
     void Use();
     void UpdateCooldown(float deltaTime);
+    void UpgradeSkill();
 }

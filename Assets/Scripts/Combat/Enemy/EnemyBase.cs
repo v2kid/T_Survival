@@ -8,7 +8,7 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
     protected EnemyStat enemyStat;
     public PlayerStats playerStats; // track player
     private UIHealthBar _healthBar;
-    [SerializeField] protected Renderer _renderer;
+    [SerializeField] protected List<Renderer> _renderer;
     public event System.Action OnDie; // experience points
 
 
@@ -39,8 +39,14 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
             enemyStat = new EnemyStat(enemyData);
         }
         _healthBar = UIHealthBarController.Instance.RegisterHealthBar(transform, enemyStat.maxHealth, 1.5f);
-        if (_renderer != null)
-            _renderer.material = new Material(_renderer.material);
+        if (_renderer.Count > 0)
+        {
+            foreach (var rend in _renderer)
+            {
+                rend.material = new Material(rend.material);
+            }
+        }
+        // _renderer.material = new Material(_renderer.material);
     }
     public void AddState(EnemyState state)
     {

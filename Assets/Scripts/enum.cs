@@ -4,7 +4,8 @@ public enum VisualEffectID
     Hit_1,
     Blood,
     Healing_Totem,
-    Shuriken_Fan
+    Shuriken_Fan,
+    Fox_Sagent
 }
 
 

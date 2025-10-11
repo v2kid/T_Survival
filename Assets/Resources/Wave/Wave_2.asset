@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wave_2
   m_EditorClassIdentifier: 
   enemies:
-  - enemyData: {fileID: 11400000, guid: d73b7f2e14b884c0e819ab2a97451ac3, type: 2}
+  - enemyData: {fileID: 11400000, guid: 34d475d73c1a74b8280a43cf4acd2bf9, type: 2}
     enemyCount: 5
     spawnRate: 2
     startDelay: 1
