@@ -30,11 +30,32 @@ public class WaveManager : MonoBehaviour
     public static event Action OnWaveCleared;   // int = wave index
 
     private bool isSpawningWave = false;
+    
+    [Header("Game Stats")]
+    public float gameStartTime;
+    public int enemiesKilled = 0;
+    
+    // Properties for external access
+    public float GameTime => Time.time - gameStartTime;
+    public int EnemiesKilled => enemiesKilled;
 
 
     private void Start()
     {
+        InitializeGame();
         StartNextWave(); // auto start wave đầu
+    }
+    
+    /// <summary>
+    /// Initialize game stats and start time
+    /// </summary>
+    private void InitializeGame()
+    {
+        gameStartTime = Time.time;
+        enemiesKilled = 0;
+        currentWaveIndex = 0;
+        aliveEnemies.Value = 0;
+        isSpawningWave = false;
     }
 
     public void StartNextWave()
@@ -108,11 +129,122 @@ public class WaveManager : MonoBehaviour
     private void HandleEnemyDeath()
     {
         aliveEnemies.Value--;
+        enemiesKilled++;
+        
         if (aliveEnemies.Value <= 0 && !isSpawningWave)
         {
             OnWaveCleared?.Invoke();
             currentWaveIndex++;
+            
+            // Auto start next wave after a delay
+            if (currentWaveIndex < waves.Count)
+            {
+                StartCoroutine(StartNextWaveAfterDelay(2f));
+            }
+            else
+            {
+                Debug.Log("All waves completed!");
+            }
         }
     }
-    // ...existing code...
+    
+    /// <summary>
+    /// Start next wave after a delay
+    /// </summary>
+    /// <param name="delay">Delay in seconds</param>
+    private IEnumerator StartNextWaveAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        StartNextWave();
+    }
+    
+    /// <summary>
+    /// Restart all waves (for game restart functionality)
+    /// </summary>
+    public void RestartWaves()
+    {
+        // Stop all coroutines
+        StopAllCoroutines();
+        
+        // Clear all alive enemies
+        ClearAllEnemies();
+        
+        // Reset game state
+        InitializeGame();
+        
+        // Start first wave
+        StartNextWave();
+        
+        Debug.Log("WaveManager: Game restarted!");
+    }
+    
+    /// <summary>
+    /// Clear all alive enemies from the scene
+    /// </summary>
+    private void ClearAllEnemies()
+    {
+        // Find all enemies in scene and destroy them
+        EnemyBase[] allEnemies = FindObjectsOfType<EnemyBase>();
+        foreach (var enemy in allEnemies)
+        {
+            if (enemy != null)
+            {
+                // Unregister from radar
+                Radar.Instance?.UnregisterEnemy(enemy.transform);
+                
+                // Destroy enemy
+                Destroy(enemy.gameObject);
+            }
+        }
+        
+        aliveEnemies.Value = 0;
+    }
+    
+    
+    /// <summary>
+    /// Get current wave number (1-based)
+    /// </summary>
+    /// <returns>Current wave number</returns>
+    public int GetCurrentWaveNumber()
+    {
+        return currentWaveIndex + 1;
+    }
+    
+    /// <summary>
+    /// Get total number of waves
+    /// </summary>
+    /// <returns>Total wave count</returns>
+    public int GetTotalWaves()
+    {
+        return waves.Count;
+    }
+    
+    /// <summary>
+    /// Check if all waves are completed
+    /// </summary>
+    /// <returns>True if all waves are done</returns>
+    public bool AreAllWavesCompleted()
+    {
+        return currentWaveIndex >= waves.Count;
+    }
+    
+    /// <summary>
+    /// Pause wave spawning (useful for game pause)
+    /// </summary>
+    public void PauseWaves()
+    {
+        StopAllCoroutines();
+        isSpawningWave = false;
+    }
+    
+    /// <summary>
+    /// Resume wave spawning
+    /// </summary>
+    public void ResumeWaves()
+    {
+        if (currentWaveIndex < waves.Count && aliveEnemies.Value <= 0)
+        {
+            StartNextWave();
+        }
+    }
 }

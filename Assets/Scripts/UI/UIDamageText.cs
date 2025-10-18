@@ -101,8 +101,7 @@ public class UIDamageText : MonoBehaviour
             TextType.Critical => $"!{formattedDamage}",
             TextType.Heal => $"+{formattedDamage}",
             TextType.Magic => $"✦{formattedDamage}✦",
-            TextType.Exp => $"+{formattedDamage} XP",
-            TextType.Miss => $"!!",
+            TextType.Miss => $"miss",
             _ => formattedDamage,
         };
     }

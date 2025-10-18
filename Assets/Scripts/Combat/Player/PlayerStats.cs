@@ -55,6 +55,13 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
     public float CurrentHP;
     private UIHealthBar _healthBar;
     private float timer;
+    
+    // Death detection
+    private bool isDead = false;
+    
+    // Events
+    public event System.Action OnPlayerDeath;
+    public event System.Action OnHealthChanged;
     private float regenInterval = 1f;
     public List<SkillID> AllSkills = new List<SkillID>();
     public List<Skill_Base> SkillInstances = new List<Skill_Base>();
@@ -238,22 +245,59 @@ public class PlayerStats : MonoBehaviour, IHealthBar, IDamageable
         }
 
         CurrentHP -= Mathf.Max(result.FinalDamage, 0);
-        // CurrentHealth.Value = Mathf.Max(CurrentHealth.Value, 0);
+        CurrentHP = Mathf.Max(CurrentHP, 0); // Ensure HP doesn't go below 0
 
         SetHealth(CurrentHP, CurrentStats.MaxHealth);
+        
+        // Invoke health changed event
+        OnHealthChanged?.Invoke();
 
         UIDamageTextManager.Instance.ShowDamageText(
             transform.position,
             result.FinalDamage,
             result.IsCrit ? TextType.Critical : TextType.Normal
         );
+        
+        // Check for death
+        CheckForDeath();
     }
 
     public float GetCurrentHealth() => CurrentHP;
 
-
-
     public float GetMaxHealth() => CurrentStats.MaxHealth;
+    
+    /// <summary>
+    /// Check if player has died and trigger death event
+    /// </summary>
+    private void CheckForDeath()
+    {
+        if (!isDead && CurrentHP <= 0)
+        {
+            isDead = true;
+            OnPlayerDeath?.Invoke();
+            Debug.Log("Player has died!");
+        }
+    }
+    
+    /// <summary>
+    /// Check if player is currently dead
+    /// </summary>
+    /// <returns>True if player is dead</returns>
+    public bool IsDead()
+    {
+        return isDead;
+    }
+    
+    /// <summary>
+    /// Reset player health and death state (for restarting game)
+    /// </summary>
+    public void ResetHealth()
+    {
+        CurrentHP = CurrentStats.MaxHealth;
+        isDead = false;
+        SetHealth(CurrentHP, CurrentStats.MaxHealth);
+        OnHealthChanged?.Invoke();
+    }
 
 
     public void ChangeStat(StatType t, float value)

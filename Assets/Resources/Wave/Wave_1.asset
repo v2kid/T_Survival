@@ -25,3 +25,7 @@ MonoBehaviour:
     enemyCount: 1
     spawnRate: 2
     startDelay: 12
+  - enemyData: {fileID: 11400000, guid: acc7bab0dc4724cd995fc5bdfa2e444c, type: 2}
+    enemyCount: 1
+    spawnRate: 1
+    startDelay: 2

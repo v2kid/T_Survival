@@ -1,24 +1,32 @@
 using System.Collections;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
 {
     public EnemySO enemyData;
     protected EnemyStat enemyStat;
     public PlayerStats playerStats; // track player
-    private UIHealthBar _healthBar;
-    [SerializeField] protected List<Renderer> _renderer;
+    protected UIHealthBar _healthBar;
+
+    [SerializeField]
+    protected List<Renderer> _renderer;
     public event System.Action OnDie; // experience points
 
-
     [Header("State Machine")]
-    private Dictionary<EnemyStateID, EnemyState> states = new Dictionary<EnemyStateID, EnemyState>();
+    private Dictionary<EnemyStateID, EnemyState> states =
+        new Dictionary<EnemyStateID, EnemyState>();
     private List<GlobalTransition> globalTransitions = new List<GlobalTransition>();
     public EnemyState currentState;
     public Animator animator;
+    public float anim_speed;
 
     public bool IsDead => enemyStat?.currentHealth <= 0;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     public virtual void Initialize(EnemySO data, PlayerStats playerStats_)
     {
@@ -27,18 +35,26 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
         enemyStat = new EnemyStat(enemyData);
         AddGlobalTransition(() => IsDead, EnemyStateID.Die);
 
+        // Set animation speed from enemy data
+        if (enemyData != null)
+        {
+            anim_speed = enemyData.animationSpeed;
+            animator.SetFloat("AnimationSpeed", anim_speed);
+        }
+        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(
+            transform,
+            enemyStat.maxHealth,
+            data.healthBarHeightOffset
+        );
     }
-    private void Awake()
-    {
-        animator = GetComponent<Animator>();
-    }
+
     private void Start()
     {
         if (enemyStat == null && enemyData != null)
         {
             enemyStat = new EnemyStat(enemyData);
         }
-        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(transform, enemyStat.maxHealth, 1.5f);
+
         if (_renderer.Count > 0)
         {
             foreach (var rend in _renderer)
@@ -48,14 +64,17 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
         }
         // _renderer.material = new Material(_renderer.material);
     }
+
     public void AddState(EnemyState state)
     {
         states[state.GetID()] = state;
     }
+
     public void AddGlobalTransition(System.Func<bool> condition, EnemyStateID targetState)
     {
         globalTransitions.Add(new GlobalTransition(condition, targetState));
     }
+
     public void ChangeState(EnemyStateID newStateID)
     {
         if (currentState != null && currentState.GetID() == newStateID)
@@ -97,14 +116,14 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
         UIDamageTextManager.Instance.ShowDamageText(
             transform.position,
             result.FinalDamage,
-            result.IsCrit ? TextType.Critical :
-            (result.IsMiss ? TextType.Miss : TextType.Normal)
+            result.IsCrit ? TextType.Critical : (result.IsMiss ? TextType.Miss : TextType.Normal)
         );
         SetHealth(enemyStat.currentHealth, enemyStat.maxHealth);
         var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Blood);
         vfx.transform.position = hitPoint + Vector3.up * 0.5f;
         vfx.Play();
     }
+
     public virtual void Heal(float amount)
     {
         enemyStat.currentHealth = Mathf.Min(enemyStat.currentHealth + amount, enemyStat.maxHealth);
@@ -115,7 +134,9 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
         vfx.transform.localPosition = Vector3.zero;
         vfx.Play();
     }
+
     public float GetCurrentHealth() => enemyStat.currentHealth;
+
     public float GetMaxHealth() => enemyStat.maxHealth;
 
     public virtual void Attack() //use in animation event
@@ -124,8 +145,8 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
         var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Blood);
         vfx.transform.position = playerStats.transform.position + Vector3.up * 1.0f;
         vfx.Play();
-
     }
+
     public void PlayeAttackAnimation()
     {
         animator.SetTrigger("Attack");
@@ -136,17 +157,14 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
         OnDie?.Invoke();
         StartCoroutine(DestroyDelay(2.0f));
     }
+
     public IEnumerator DestroyDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         Destroy(gameObject);
     }
 
-
     public EnemyStat GetEnemyStat() => enemyStat;
-
-
-
 
     public void SetHealth(float health, float maxHealth)
     {
@@ -162,15 +180,17 @@ public abstract class EnemyBase : MonoBehaviour, IHealthBar, IDamageable
 
     public void RegisterHealthBar(Transform target, float maxHealth, float heightOffset)
     {
-        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(target, maxHealth, heightOffset);
+        _healthBar = UIHealthBarController.Instance.RegisterHealthBar(
+            target,
+            maxHealth,
+            heightOffset
+        );
     }
 
     public void UnregisterHealthBar()
     {
         UIHealthBarController.Instance.UnregisterHealthBar(_healthBar);
     }
-
-
 }
 
 public class EnemyStat
@@ -182,7 +202,6 @@ public class EnemyStat
     public float attackRange;
     public float attackRate;
 
-
     public EnemyStat(EnemySO enemyData)
     {
         maxHealth = enemyData.maxHealth;
@@ -193,12 +212,12 @@ public class EnemyStat
         attackRate = enemyData.attackSpeed;
     }
 }
+
 public enum EnemyStateID
 {
     Idle,
     Move,
     Attack,
     Hitted,
-    Die
+    Die,
 }
-

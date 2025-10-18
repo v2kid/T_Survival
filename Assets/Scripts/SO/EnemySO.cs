@@ -11,12 +11,15 @@ public class EnemySO : ScriptableObject
     public float meleeDamage;
     public float attackRange;
     public float attackSpeed;
+    public float animationSpeed = 1.0f;
     public int coinDrop;
-}
 
+    [Tooltip("The height offset of the health bar")]
+    public float healthBarHeightOffset = 1.5f;
+}
 
 public enum EnemyID
 {
     Zombie = 0,
-    Dummy = 99
+    Dummy = 99,
 }

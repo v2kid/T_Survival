@@ -10,6 +10,7 @@ public class Zombie : EnemyBase
         AddState(new AttackState());
         AddState(new DieState());
         ChangeState(EnemyStateID.Move);
+        
     }
 
     private IEnumerator DissolveEffect()
