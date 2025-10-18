@@ -5,11 +5,16 @@ public class AudioSettings
     [Range(0f, 1f)] public float masterVolume = 1f;
     [Range(0f, 1f)] public float musicVolume = 0.8f;
     [Range(0f, 1f)] public float sfxVolume = 0.8f;
-    [Range(0f, 1f)] public float voiceVolume = 0.8f;
 
     public void ApplySettings()
     {
-
+        // Apply audio settings through AudioManager
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetMasterVolume(masterVolume);
+            AudioManager.Instance.SetMusicVolume(musicVolume);
+            AudioManager.Instance.SetSFXVolume(sfxVolume);
+        }
     }
 }
 

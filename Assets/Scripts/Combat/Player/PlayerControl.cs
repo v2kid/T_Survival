@@ -57,7 +57,7 @@ public class PlayerControl : MonoBehaviour
         {
             return;
         }
-
+      
         thirdPersonController.canMove = false;
         TargetDetectionControl.instance.canChangeTarget = false;
         RandomAttackAnim(attackState);
@@ -88,10 +88,6 @@ public class PlayerControl : MonoBehaviour
     void QuickAttack()
     {
         int attackIndex = Random.Range(1, 4);
-        if (debug)
-        {
-        }
-
         switch (attackIndex)
         {
             case 1: //punch
@@ -100,6 +96,9 @@ public class PlayerControl : MonoBehaviour
                 {
                     MoveTowardsTarget(target.position, quickAttackDeltaDistance, "punch");
                     isAttacking = true;
+                    // Play punch attack sound
+                    if (AudioManager.Instance != null)
+                        AudioManager.Instance.PlaySFX("Attack1", volumeMultiplier: 0.8f, pitchMultiplier: 1.0f);
                 }
                 else
                 {
@@ -115,6 +114,9 @@ public class PlayerControl : MonoBehaviour
                 {
                     MoveTowardsTarget(target.position, quickAttackDeltaDistance, "kick");
                     isAttacking = true;
+                    // Play kick attack sound
+                    if (AudioManager.Instance != null)
+                        AudioManager.Instance.PlaySFX("Attack1", volumeMultiplier: 0.9f, pitchMultiplier: 1.1f);
                 }
                 else
                 {
@@ -132,6 +134,9 @@ public class PlayerControl : MonoBehaviour
                     MoveTowardsTarget(target.position, quickAttackDeltaDistance, "mmakick");
 
                     isAttacking = true;
+                    // Play MMA kick attack sound
+                    if (AudioManager.Instance != null)
+                        AudioManager.Instance.PlaySFX("Attack1", volumeMultiplier: 1.0f, pitchMultiplier: 0.9f);
                 }
                 else
                 {
@@ -147,10 +152,6 @@ public class PlayerControl : MonoBehaviour
     void HeavyAttack()
     {
         int attackIndex = Random.Range(1, 3);
-        //int attackIndex = 2;
-        if (debug)
-        {
-        }
 
         switch (attackIndex)
         {
@@ -162,6 +163,9 @@ public class PlayerControl : MonoBehaviour
                     FaceThis(target.position);
                     anim.SetBool("heavyAttack1", true);
                     isAttacking = true;
+                    // Play heavy attack 1 sound
+                    if (AudioManager.Instance != null)
+                        AudioManager.Instance.PlaySFX("Attack2", volumeMultiplier: 1.0f, pitchMultiplier: 0.8f);
 
                 }
                 else
@@ -181,6 +185,9 @@ public class PlayerControl : MonoBehaviour
                     FaceThis(target.position);
                     anim.SetBool("heavyAttack2", true);
                     isAttacking = true;
+                    // Play heavy attack 2 sound
+                    if (AudioManager.Instance != null)
+                        AudioManager.Instance.PlaySFX("Attack2", volumeMultiplier: 1.1f, pitchMultiplier: 0.9f);
                 }
                 else
                 {
@@ -230,6 +237,10 @@ public class PlayerControl : MonoBehaviour
                 var vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Hit_1);
                 vfx.transform.position = attackPos.position;
                 vfx.Play();
+                
+                // Play hit sound effect
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlaySFX("Hit", volumeMultiplier: 0.7f, pitchMultiplier: Random.Range(0.9f, 1.1f));
             }
         }
     }
