@@ -10,7 +10,7 @@ public class Healing_Totem : Skill_Base
     protected override void OnUse()
     {
         base.OnUse();
-        float baseRegen = PlayerStats.Instance.CurrentStats.HpRegen;
+        float baseRegen = PlayerStats.Instance.CurrentStats.HpRegen * SkillData.skillEffectMultiplier;
         configs = new AreaEffectConfig[]
         {
             new AreaEffectConfig

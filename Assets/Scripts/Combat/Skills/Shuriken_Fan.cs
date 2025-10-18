@@ -4,8 +4,11 @@ public class Shuriken_Fan : Skill_Base
 {
     private AreaEffectConfig[] configs;
 
-    public Shuriken_Fan(AbilitiesSO skillData) : base(skillData)
+    public Shuriken_Fan(AbilitiesSO skillData)
+        : base(skillData)
     {
+        float baseDamage =
+            PlayerStats.Instance.CurrentStats.Damage * SkillData.skillEffectMultiplier;
         configs = new AreaEffectConfig[]
         {
             new AreaEffectConfig
@@ -14,8 +17,8 @@ public class Shuriken_Fan : Skill_Base
                 duration = 1.5f,
                 interval = 0.3f,
                 activationDelay = 0.08f,
-                damage = 10,
-            }
+                damage = baseDamage / 2,
+            },
         };
     }
 

@@ -10,7 +10,8 @@ public class Fox_Sagent : Skill_Base
     protected override void OnUse()
     {
         base.OnUse();
-        float baseDamage = PlayerStats.Instance.CurrentStats.Damage;
+        float baseDamage =
+            PlayerStats.Instance.CurrentStats.Damage * SkillData.skillEffectMultiplier;
         configs = new AreaEffectConfig[]
         {
             new AreaEffectConfig
@@ -19,13 +20,18 @@ public class Fox_Sagent : Skill_Base
                 duration = 1.5f,
                 interval = 0.2f,
                 activationDelay = 2f,
-                damage = baseDamage/2 * (this.SkillLevel.Value) * (1 + (this.SkillLevel.Value - 1) * 0.1f),
+                damage =
+                    baseDamage
+                    / 2
+                    * (this.SkillLevel.Value)
+                    * (1 + (this.SkillLevel.Value - 1) * 0.1f),
             },
             new AreaEffectConfig
             {
                 effectType = AreaEffectConfig.EffectType.OneShot,
                 activationDelay = 4f,
-                damage = baseDamage * this.SkillLevel.Value * (1 + (this.SkillLevel.Value - 1) * 0.1f),
+                damage =
+                    baseDamage * this.SkillLevel.Value * (1 + (this.SkillLevel.Value - 1) * 0.1f),
             },
         };
         BaseVisualEffect vfx = VFXPoolManager.Instance.GetEffect(VisualEffectID.Fox_Sagent);
